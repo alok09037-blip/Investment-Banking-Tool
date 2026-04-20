@@ -201,34 +201,47 @@
         @media print {
             .sidebar, .toggle-btn, .export-btn, .sub-tabs, .modal-overlay, .tabs { display: none !important; }
             body, .app-container, .main-content, .workspace {
-                height: auto !important; width: 100% !important; overflow: visible !important; display: block !important;
+                height: auto !important; width: auto !important; max-width: 100% !important; overflow: visible !important; display: block !important;
                 background: white !important; padding: 0 !important; margin: 0 !important;
             }
             .panel { box-shadow: none !important; border: none !important; break-inside: avoid; margin-bottom: 20px; padding: 10px 0 !important;}
             .btn, .btn-danger { display: none !important; }
             input, select { border: none !important; background: transparent !important; appearance: none; -webkit-appearance: none; padding: 0 !important; color: black !important; font-weight: bold;}
             .dynamic-row { border: none !important; background: transparent !important; padding: 0 !important; margin-bottom: 2px !important; }
-            .wacc-box { background: transparent !important; border: 1px solid #ccc !important; }
+            .wacc-box { background: transparent !important; border: 1px solid #ccc !important; break-inside: avoid;}
             body { color: black !important; }
             .text-muted { color: #333 !important; }
-            .statement-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            /* Table Print Fixes */
+            .table-container { border: none !important; box-shadow: none !important; overflow: visible !important; }
+            .statement-table { width: 100% !important; page-break-inside: auto; }
+            .statement-table tr { page-break-inside: avoid; page-break-after: auto; }
+            .statement-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; position: static !important;}
+            .statement-table th:first-child, .statement-table td:first-child { position: static !important; border-right: none !important; background: transparent !important; }
             .row-total td { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .row-header td { background-color: white !important; }
             .stage-label { background: transparent !important; color: #64748b !important; border: 1px solid #64748b; }
-            .table-container { border: none !important; box-shadow: none !important; }
+            
             .topbar { position: relative; height: auto; padding: 10px 0; border-bottom: 2px solid black; box-shadow: none; display: flex; align-items: flex-end; margin-bottom: 20px; }
-            body.print-statements .tab-content { display: none !important; }
-            body.print-statements #tab-fin, body.print-statements #tab-val { display: block !important; page-break-before: always; }
+            .chart-wrapper, .svg-chart-container { break-inside: avoid; page-break-inside: avoid; }
+
+            /* Hide all tab contents by default in print */
+            .tab-content { display: none !important; }
+
+            /* MODE: Financial Statements & DCF */
+            body.print-statements #tab-fin, 
+            body.print-statements #tab-val { display: block !important; page-break-before: always; }
             body.print-statements #tab-fin { page-break-before: avoid; }
-            body.print-statements .sub-tab-content { display: block !important; page-break-inside: avoid; margin-bottom: 40px;}
-            body.print-statements .panel:not(#tab-val .panel) { display: none !important; } 
+            body.print-statements #tab-fin .sub-tab-content { display: block !important; margin-bottom: 40px; page-break-inside: avoid; }
+
+            /* MODE: Current Active Tab */
+            body.print-current .tab-content.active { display: block !important; }
+            body.print-current .tab-content.active .sub-tab-content { display: block !important; margin-bottom: 40px; page-break-inside: avoid; }
+
+            /* MODE: Entire Model */
             body.print-all .tab-content { display: block !important; page-break-before: always; }
             body.print-all .tab-content:first-child { page-break-before: avoid; }
-            body.print-all .sub-tab-content { display: block !important; margin-bottom: 30px; }
-            body.print-current .tab-content:not(.active) { display: none !important; }
-            body.print-current .sub-tab-content:not(.active) { display: none !important; }
-            
-            .chart-wrapper, .svg-chart-container { break-inside: avoid; page-break-inside: avoid; }
+            body.print-all .sub-tab-content { display: block !important; margin-bottom: 30px; page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -784,12 +797,13 @@
             document.body.className = ''; 
             document.body.classList.add(`print-${content}`);
 
+            // Extended timeout to ensure sub-tabs fully render and expand before print dialog opens
             setTimeout(() => {
                 window.print();
                 document.body.className = '';
                 styleElem.innerHTML = '';
                 closeExportModal();
-            }, 150);
+            }, 300);
         }
 
         // UI TOGGLES
