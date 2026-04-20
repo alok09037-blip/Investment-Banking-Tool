@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DealCraft v10.0 | Premium Master Model</title>
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --bg-panel: #ffffff;
+            --bg-input: #f1f5f9;
+            --bg-sidebar: #0f172a;
+            --bg-sidebar-hover: #1e293b;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --text-sidebar: #94a3b8;
+            --border: #e2e8f0;
+            --positive: #16a34a;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --table-header: #f8fafc;
+            --table-hover: #f1f5f9;
+            
+            /* Chart Colors */
+            --chart-1: #3b82f6; --chart-2: #8b5cf6; --chart-3: #6366f1; 
+            --chart-4: #14b8a6; --chart-5: #10b981; --chart-6: #f59e0b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0; padding: 0; font-size: 13px;
+            overflow: hidden;
+        }
+
+        /* APP LAYOUT */
+        .app-container { display: flex; height: 100vh; width: 100vw; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px; background-color: var(--bg-sidebar); color: white;
+            display: flex; flex-direction: column; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0; z-index: 100;
+        }
+        .sidebar.collapsed { width: 70px; }
+        .sidebar.collapsed .logo-text, .sidebar.collapsed .tab-label, .sidebar.collapsed .sidebar-footer { display: none; }
+
+        .sidebar-header {
+            padding: 20px; display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.1); height: 70px;
+        }
+        .sidebar-header h2 { margin: 0; color: #60a5fa; font-size: 20px; font-weight: 700; white-space: nowrap; }
+        
+        .toggle-btn { background: transparent; border: none; color: var(--text-sidebar); cursor: pointer; font-size: 20px; padding: 5px; border-radius: 4px; transition: 0.2s; }
+        .toggle-btn:hover { color: white; background: rgba(255,255,255,0.1); }
+
+        .vertical-tabs { display: flex; flex-direction: column; padding: 15px 0; flex: 1; overflow-y: auto;}
+        .tab-btn {
+            background: transparent; border: none; color: var(--text-sidebar); padding: 15px 20px;
+            text-align: left; cursor: pointer; display: flex; align-items: center; gap: 15px;
+            font-size: 14px; font-weight: 500; transition: all 0.2s; white-space: nowrap; border-left: 3px solid transparent;
+        }
+        .tab-btn:hover { background: var(--bg-sidebar-hover); color: white; }
+        .tab-btn.active { background: var(--bg-sidebar-hover); color: white; border-left: 3px solid var(--accent); }
+        .tab-icon { font-size: 16px; min-width: 20px; text-align: center; }
+
+        .sidebar-footer { padding: 20px; font-size: 11px; color: var(--text-sidebar); border-top: 1px solid rgba(255,255,255,0.1); text-align: center; }
+
+        /* MAIN CONTENT AREA */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background-color: var(--bg-main); }
+
+        /* TOP DASHBOARD BAR */
+        .topbar {
+            background: var(--bg-panel); padding: 0 30px; height: 70px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02); flex-shrink: 0; gap: 20px;
+        }
+        .topbar-title { font-size: 18px; font-weight: 600; color: var(--text-main); }
+        .live-dashboard { display: flex; gap: 30px; align-items: center;}
+        .dash-item { display: flex; flex-direction: column; align-items: flex-end; }
+        .dash-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;}
+        .dash-value { font-size: 18px; font-weight: 700; color: var(--text-main); font-family: monospace;}
+        .dash-value.primary { color: var(--accent); }
+
+        /* EXPORT BUTTON & MODAL */
+        .export-btn {
+            background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .export-btn:hover { background: var(--border); }
+        
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: var(--bg-panel); padding: 30px; border-radius: 12px; width: 450px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid var(--border);
+        }
+        .modal-content h3 { margin-top: 0; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 15px; font-size: 18px;}
+
+        /* SCROLLABLE WORKSPACE */
+        .workspace { flex: 1; overflow-y: auto; padding: 30px; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* SUB-TABS */
+        .sub-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; overflow-x: auto;}
+        .sub-tab-btn { background: var(--bg-input); border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-muted); transition: all 0.2s; white-space: nowrap;}
+        .sub-tab-btn:hover { color: var(--text-main); border-color: #cbd5e1; }
+        .sub-tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .sub-tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .sub-tab-content.active { display: block; }
+
+        /* PANELS & INPUTS */
+        .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; align-items: start;}
+        .panel { background-color: var(--bg-panel); border-radius: 10px; padding: 25px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .panel h2 { font-size: 16px; color: var(--text-main); border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-top: 0; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .input-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .input-group label { color: var(--text-muted); font-size: 13px; font-weight: 500; flex: 1; }
+        .input-group input, .input-group select { background-color: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 8px 12px; border-radius: 6px; width: 120px; text-align: right; font-family: monospace; font-size: 13px; transition: all 0.2s; }
+        .input-group input.text-input { text-align: left; width: 140px; font-family: inherit;}
+        .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); background: white;}
+        
+        .btn { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: background 0.2s;}
+        .btn:hover { background: var(--accent-hover); }
+        .btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #fecaca; }
+        .btn-danger:hover { background: var(--danger); color: white; border-color: var(--danger); }
+
+        .dynamic-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; background: var(--bg-input); padding: 8px; border-radius: 6px; border: 1px solid var(--border); flex-wrap: wrap;}
+        .dynamic-row input { flex: 1; margin: 0; }
+        .wacc-box { background: var(--bg-main); padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px;}
+        
+        /* TABLES */
+        .table-container { overflow-x: auto; max-width: 100%; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); background: var(--bg-panel);}
+        .statement-table { width: 100%; border-collapse: separate; border-spacing: 0; font-family: monospace; font-size: 13px; }
+        .statement-table th, .statement-table td { padding: 12px 15px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap;}
+        .statement-table th { color: var(--text-muted); font-weight: 600; background-color: var(--table-header); position: sticky; top: 0; font-family: 'Inter', sans-serif; z-index: 10;}
+        .statement-table th:first-child, .statement-table td:first-child { text-align: left; min-width: 250px; font-family: 'Inter', sans-serif; position: sticky; left: 0; background: var(--bg-panel); z-index: 11; border-right: 1px solid var(--border);}
+        .statement-table th:first-child { background-color: var(--table-header); z-index: 12; }
+        .statement-table tr:hover td { background-color: var(--table-hover); }
+        .statement-table tr:hover td:first-child { background-color: var(--table-hover); }
+        .row-total td { font-weight: bold; border-top: 2px solid #cbd5e1; background-color: #f8fafc !important; }
+        .row-header td { font-weight: 700; color: var(--accent); background-color: var(--bg-panel) !important; padding-top: 25px; border-bottom: 2px solid var(--border);}
+        .stage-label { font-size: 10px; color: white; background: var(--accent); padding: 2px 6px; border-radius: 10px; display: inline-block; margin-top: 4px; font-weight: normal;}
+        .val-negative { color: var(--danger); font-weight: 600; }
+
+        /* NATIVE CSS CHARTS */
+        .chart-wrapper {
+            position: relative; height: 280px; width: 100%; margin-top: 20px;
+            display: flex; justify-content: space-between; padding: 0 10px;
+        }
+        .chart-gridline { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--border); z-index: 1; }
+        .chart-zero-line { position: absolute; left: 0; right: 0; border-top: 2px solid var(--text-main); z-index: 2; }
+        .chart-col { position: relative; flex: 1; display: flex; justify-content: center; z-index: 3; }
+        .chart-bar {
+            position: absolute; width: 60%; max-width: 50px; border-radius: 4px 4px 0 0;
+            background-color: var(--accent); transition: all 0.4s ease;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+        }
+        .chart-bar.negative { background-color: var(--danger); border-radius: 0 0 4px 4px; }
+        .chart-val { position: absolute; width: 100%; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-main); }
+        .chart-label { position: absolute; bottom: -25px; width: 100%; text-align: center; font-size: 11px; color: var(--text-muted); font-weight: 600; }
+
+        /* HORIZONTAL STACKED CHARTS */
+        .h-chart-wrapper { width: 100%; margin-top: 10px; margin-bottom: 25px; }
+        .h-chart-bar { display: flex; height: 30px; width: 100%; border-radius: 6px; overflow: hidden; background: var(--bg-input); border: 1px solid var(--border); }
+        .h-chart-segment { height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 600; overflow: hidden; white-space: nowrap; transition: width 0.4s ease; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .h-chart-legend { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+        .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+
+        /* SVG CHART WRAPPER */
+        .svg-chart-container { position: relative; width: 100%; height: 300px; margin-top: 20px;}
+        .svg-chart-labels-y { position: absolute; left: 0; top: 0; bottom: 30px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; font-size: 10px; color: var(--text-muted); text-align: right; padding-right: 5px;}
+        .svg-chart-labels-x { position: absolute; left: 40px; right: 0; bottom: 0; height: 20px; display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); padding: 0 10px;}
+        .svg-wrapper { position: absolute; left: 40px; top: 5px; right: 0; bottom: 30px; }
+
+        /* INSIGHT CARDS */
+        .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px;}
+        .insight-card { padding: 20px; border-radius: 8px; border-left: 4px solid var(--border); background: var(--bg-input); }
+        .insight-card.success { border-left-color: var(--positive); background: rgba(22, 163, 74, 0.05); }
+        .insight-card.warning { border-left-color: var(--danger); background: rgba(220, 38, 38, 0.05); }
+        .insight-card.info { border-left-color: var(--accent); background: rgba(37, 99, 235, 0.05); }
+        .insight-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-weight: 700; font-size: 14px; }
+        .insight-card p { margin: 0; color: var(--text-muted); line-height: 1.5; }
+
+        /* =========================================
+           NATIVE PDF EXPORT / PRINT CSS
+           ========================================= */
+        @media print {
+            .sidebar, .toggle-btn, .export-btn, .sub-tabs, .modal-overlay, .tabs { display: none !important; }
+            body, .app-container, .main-content, .workspace {
+                height: auto !important; width: 100% !important; overflow: visible !important; display: block !important;
+                background: white !important; padding: 0 !important; margin: 0 !important;
+            }
+            .panel { box-shadow: none !important; border: none !important; break-inside: avoid; margin-bottom: 20px; padding: 10px 0 !important;}
+            .btn, .btn-danger { display: none !important; }
+            input, select { border: none !important; background: transparent !important; appearance: none; -webkit-appearance: none; padding: 0 !important; color: black !important; font-weight: bold;}
+            .dynamic-row { border: none !important; background: transparent !important; padding: 0 !important; margin-bottom: 2px !important; }
+            .wacc-box { background: transparent !important; border: 1px solid #ccc !important; }
+            body { color: black !important; }
+            .text-muted { color: #333 !important; }
+            .statement-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .row-total td { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .row-header td { background-color: white !important; }
+            .stage-label { background: transparent !important; color: #64748b !important; border: 1px solid #64748b; }
+            .table-container { border: none !important; box-shadow: none !important; }
+            .topbar { position: relative; height: auto; padding: 10px 0; border-bottom: 2px solid black; box-shadow: none; display: flex; align-items: flex-end; margin-bottom: 20px; }
+            body.print-statements .tab-content { display: none !important; }
+            body.print-statements #tab-fin, body.print-statements #tab-val { display: block !important; page-break-before: always; }
+            body.print-statements #tab-fin { page-break-before: avoid; }
+            body.print-statements .sub-tab-content { display: block !important; page-break-inside: avoid; margin-bottom: 40px;}
+            body.print-statements .panel:not(#tab-val .panel) { display: none !important; } 
+            body.print-all .tab-content { display: block !important; page-break-before: always; }
+            body.print-all .tab-content:first-child { page-break-before: avoid; }
+            body.print-all .sub-tab-content { display: block !important; margin-bottom: 30px; }
+            body.print-current .tab-content:not(.active) { display: none !important; }
+            body.print-current .sub-tab-content:not(.active) { display: none !important; }
+            
+            .chart-wrapper, .svg-chart-container { break-inside: avoid; page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- EXPORT MODAL -->
+    <div id="exportModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Export to PDF</h3>
+            <div class="input-group">
+                <label>Content to Export</label>
+                <select id="exportContent" style="width:200px; text-align: left;">
+                    <option value="statements">Financial Statements & DCF</option>
+                    <option value="current">Current Active Tab Only</option>
+                    <option value="all">Entire Model (All Tabs)</option>
+                </select>
+            </div>
+            <div class="input-group" style="margin-bottom: 20px;">
+                <label>Orientation</label>
+                <select id="exportOrientation" style="width:200px; text-align: left;">
+                    <option value="landscape">Landscape (Best for Tables)</option>
+                    <option value="portrait">Portrait</option>
+                </select>
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 20px;">
+                *Note: The browser's native print dialog will open. Ensure "Save as PDF" is selected as the destination.
+            </p>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn btn-danger" style="background:transparent;" onclick="closeExportModal()">Cancel</button>
+                <button class="btn" onclick="executeExport()">Generate PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESET MODAL -->
+    <div id="resetModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="color: var(--danger); border-bottom-color: var(--danger-bg);">Reset Model</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">
+                Are you sure you want to reset the entire model to its default state?<br><strong style="color: var(--danger);">All custom inputs, stages, and streams will be permanently lost.</strong>
+            </p>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn" style="background:transparent; color: var(--text-main); border: 1px solid var(--border);" onclick="closeResetModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="resetModelDefaults()">Yes, Reset Everything</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="logo-text">DealCraft</h2>
+            <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        </div>
+        <div class="vertical-tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'tab-dash')">
+                <span class="tab-icon">📈</span> <span class="tab-label">Dashboard Overview</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-wacc')">
+                <span class="tab-icon">⚙️</span> <span class="tab-label">WACC & Capital</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-ops')">
+                <span class="tab-icon">🎯</span> <span class="tab-label">Operating Assumptions</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-bs')">
+                <span class="tab-icon">⚖️</span> <span class="tab-label">Balance Sheet Drivers</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-fin')">
+                <span class="tab-icon">📊</span> <span class="tab-label">Financial Statements</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-val')">
+                <span class="tab-icon">💰</span> <span class="tab-label">DCF Valuation</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-insights')">
+                <span class="tab-icon">🤖</span> <span class="tab-label">AI Analyst Insights</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-curr')">
+                <span class="tab-icon">💱</span> <span class="tab-label">Currency & Settings</span>
+            </button>
+        </div>
+        <div class="sidebar-footer">v10.0 Premium Edition<br>Confidential</div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-title">Financial Model Workspace</div>
+            <div class="live-dashboard">
+                <button class="export-btn" style="color: var(--danger); border-color: #fecaca; background: var(--danger-bg);" onclick="openResetModal()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
+                    Reset Model
+                </button>
+                <button class="export-btn" onclick="openExportModal()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Export PDF
+                </button>
+                <div class="dash-item" style="border-left: 1px solid var(--border); padding-left: 20px;">
+                    <span class="dash-label">Target WACC</span>
+                    <span class="dash-value" id="dashWacc">0.0%</span>
+                </div>
+                <div class="dash-item" style="border-left: 1px solid var(--border); padding-left: 20px;">
+                    <span class="dash-label">Enterprise Value</span>
+                    <span class="dash-value primary" id="dashEV">$0.0 M</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="workspace">
+
+            <!-- TAB 0: DASHBOARD -->
+            <div id="tab-dash" class="tab-content active">
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchSubTab(event, 'sub-dash-item', 'dash')">Financial Trends</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab(event, 'sub-dash-margin', 'dash')">Margin Analysis</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab(event, 'sub-dash-bridge', 'dash')">UFCF Waterfall</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab(event, 'sub-dash-year', 'dash')">Yearly Composition</button>
+                </div>
+
+                <!-- Trend Bar Chart -->
+                <div class="sub-tab-content active" id="sub-dash-item">
+                    <div class="panel" style="margin-bottom: 30px;">
+                        <div class="input-group" style="max-width: 400px;">
+                            <label style="font-size: 15px; font-weight: 700; color: var(--text-main);">Select Metric to Visualize:</label>
+                            <select id="dashItemSelect" onchange="renderItemChart()" style="width: 180px; font-size: 14px; padding: 10px;">
+                                <option value="totalRev">Total Revenue</option>
+                                <option value="gp">Gross Profit</option>
+                                <option value="ebitda">EBITDA</option>
+                                <option value="ebit">EBIT</option>
+                                <option value="ni">Net Income</option>
+                                <option value="ufcf">Unlevered FCF</option>
+                                <option value="cash">Cash Balance</option>
+                                <option value="assets">Total Assets</option>
+                            </select>
+                        </div>
+                        <div id="itemChartContainer" style="padding-bottom: 20px;"></div>
+                    </div>
+                </div>
+
+                <!-- Margin Trend SVG Chart -->
+                <div class="sub-tab-content" id="sub-dash-margin">
+                    <div class="panel" style="margin-bottom: 30px;">
+                        <h2>Profitability Margin Trends</h2>
+                        <div id="marginChartContainer" class="svg-chart-container"></div>
+                        <div class="h-chart-legend" style="justify-content: center; margin-top: 20px;">
+                            <div class="legend-item"><div class="legend-color" style="background: var(--chart-1);"></div>Gross Margin %</div>
+                            <div class="legend-item"><div class="legend-color" style="background: var(--chart-2);"></div>EBITDA Margin %</div>
+                            <div class="legend-item"><div class="legend-color" style="background: var(--chart-4);"></div>Net Income Margin %</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UFCF Waterfall Bridge -->
+                <div class="sub-tab-content" id="sub-dash-bridge">
+                    <div class="panel" style="margin-bottom: 30px;">
+                        <div class="input-group" style="max-width: 400px; margin-bottom: 20px;">
+                            <label style="font-size: 15px; font-weight: 700; color: var(--text-main);">Select Projection Year:</label>
+                            <select id="dashBridgeYearSelect" onchange="renderWaterfallChart()" style="width: 150px; font-size: 14px; padding: 10px;"></select>
+                        </div>
+                        <h2 style="border:none; margin-bottom:5px;">Unlevered Free Cash Flow (UFCF) Bridge</h2>
+                        <div id="waterfallChartContainer" style="padding-bottom: 20px;"></div>
+                    </div>
+                </div>
+
+                <!-- Yearly Composition -->
+                <div class="sub-tab-content" id="sub-dash-year">
+                    <div class="panel" style="margin-bottom: 30px;">
+                        <div class="input-group" style="max-width: 400px; margin-bottom: 30px;">
+                            <label style="font-size: 15px; font-weight: 700; color: var(--text-main);">Select Projection Year:</label>
+                            <select id="dashYearSelect" onchange="renderYearChart()" style="width: 150px; font-size: 14px; padding: 10px;"></select>
+                        </div>
+                        
+                        <div class="grid-layout">
+                            <div class="wacc-box" style="background: var(--bg-panel); box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                <h3 style="margin-top:0; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 10px;">Revenue Composition</h3>
+                                <div id="yearRevChart"></div>
+                            </div>
+                            <div class="wacc-box" style="background: var(--bg-panel); box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                <h3 style="margin-top:0; color: var(--danger); border-bottom: 1px solid var(--border); padding-bottom: 10px;">Operating Expense Composition</h3>
+                                <div id="yearExpChart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 1: WACC & CAPITAL -->
+            <div id="tab-wacc" class="tab-content">
+                <div class="grid-layout">
+                    <div class="panel">
+                        <h2>Cost of Equity & Debt</h2>
+                        <div class="wacc-box">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                <strong style="color:var(--accent);">Cost of Equity (Ke)</strong>
+                                <select id="keMethod" onchange="toggleMethods()"><option value="capm">Use CAPM</option><option value="dgm">Dividend Growth</option><option value="direct">Direct Input</option></select>
+                            </div>
+                            <div id="capmInputs">
+                                <div class="input-group"><label>Risk-Free Rate (Rf) %</label><input type="number" id="rf" value="4.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Beta (β)</label><input type="number" id="beta" value="1.2" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Equity Risk Prem. (ERP) %</label><input type="number" id="erp" value="6.0" step="0.1" onchange="runModel()"></div>
+                            </div>
+                            <div id="dgmInputs" style="display:none;">
+                                <div class="input-group"><label>Expected Div (D1) <span class="curr-lbl">$</span></label><input type="number" id="d1" value="5.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Market Price (P0) <span class="curr-lbl">$</span></label><input type="number" id="p0" value="100" step="1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Growth Rate (g) %</label><input type="number" id="dgm_g" value="5.0" step="0.1" onchange="runModel()"></div>
+                            </div>
+                            <div id="directKeInput" style="display:none;">
+                                <div class="input-group"><label>Direct Ke Input %</label><input type="number" id="directKe" value="11.2" step="0.1" onchange="runModel()"></div>
+                            </div>
+                            <div style="text-align:right; font-weight:600; font-size:12px; color:var(--positive); margin-top:8px;">Calculated Ke: <span id="outKe">11.2%</span></div>
+                        </div>
+
+                        <div class="wacc-box">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                <strong style="color:var(--accent);">Cost of Debt (Kd)</strong>
+                                <select id="kdMethod" onchange="toggleMethods()"><option value="direct">Direct Input</option><option value="irredeemable">Irredeemable</option><option value="redeemable">Redeemable</option></select>
+                            </div>
+                            <div id="directKdInput">
+                                <div class="input-group"><label>Direct Pre-Tax Kd %</label><input type="number" id="directKd" value="6.0" step="0.1" onchange="runModel()"></div>
+                            </div>
+                            <div id="irredeemableKdInputs" style="display:none;">
+                                <div class="input-group"><label>Annual Interest (I) <span class="curr-lbl">$</span></label><input type="number" id="kd_irr_i" value="8.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Net Proceeds (NP) <span class="curr-lbl">$</span></label><input type="number" id="kd_irr_np" value="95.0" step="0.1" onchange="runModel()"></div>
+                            </div>
+                            <div id="redeemableKdInputs" style="display:none;">
+                                <div class="input-group"><label>Annual Interest (I) <span class="curr-lbl">$</span></label><input type="number" id="kd_red_i" value="8.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Net Proceeds (NP) <span class="curr-lbl">$</span></label><input type="number" id="kd_red_np" value="95.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Redeemable Val (RV) <span class="curr-lbl">$</span></label><input type="number" id="kd_red_rv" value="100.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Yrs to Maturity (n)</label><input type="number" id="kd_red_n" value="5" step="1" onchange="runModel()"></div>
+                            </div>
+                            <div style="text-align:right; font-weight:600; font-size:12px; color:var(--positive); margin-top:8px;">Calculated Kd: <span id="outKd">6.0% (Pre-Tax)</span></div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h2>Capital Structure & Preferred</h2>
+                        <div class="wacc-box">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                <strong style="color:var(--accent);">Cost of Preferred (Kp)</strong>
+                                <select id="kpMethod" onchange="toggleMethods()"><option value="direct">Direct Input</option><option value="irredeemable">Irredeemable</option><option value="redeemable">Redeemable</option></select>
+                            </div>
+                            <div id="directKpInput">
+                                <div class="input-group"><label>Direct Kp Input %</label><input type="number" id="directKp" value="8.0" step="0.1" onchange="runModel()"></div>
+                            </div>
+                            <div id="irredeemableKpInputs" style="display:none;">
+                                <div class="input-group"><label>Pref. Dividend (PD) <span class="curr-lbl">$</span></label><input type="number" id="kp_irr_pd" value="10.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Net Proceeds (NP) <span class="curr-lbl">$</span></label><input type="number" id="kp_irr_np" value="100.0" step="0.1" onchange="runModel()"></div>
+                            </div>
+                            <div id="redeemableKpInputs" style="display:none;">
+                                <div class="input-group"><label>Pref. Dividend (PD) <span class="curr-lbl">$</span></label><input type="number" id="kp_red_pd" value="10.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Net Proceeds (NP) <span class="curr-lbl">$</span></label><input type="number" id="kp_red_np" value="95.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Redeemable Val (RV) <span class="curr-lbl">$</span></label><input type="number" id="kp_red_rv" value="100.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Yrs to Maturity (n)</label><input type="number" id="kp_red_n" value="5" step="1" onchange="runModel()"></div>
+                            </div>
+                            <div style="text-align:right; font-weight:600; font-size:12px; color:var(--positive); margin-top:8px;">Calculated Kp: <span id="outKp">8.0%</span></div>
+                        </div>
+                        <div class="input-group"><label>Tax Rate %</label><input type="number" id="tax" value="25.0" step="0.1" onchange="runModel()"></div>
+                        <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+                        <div class="input-group"><label>Weight of Equity (We) %</label><input type="number" id="we" value="60" onchange="runModel()"></div>
+                        <div class="input-group"><label>Weight of Debt (Wd) %</label><input type="number" id="wd" value="30" onchange="runModel()"></div>
+                        <div class="input-group"><label>Weight of Preferred (Wp) %</label><input type="number" id="wp" value="10" onchange="runModel()"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: OPERATING ASSUMPTIONS -->
+            <div id="tab-ops" class="tab-content">
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchSubTab(event, 'sub-stages', 'ops')">Stages & Growth</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab(event, 'sub-rev', 'ops')">Revenue Streams</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab(event, 'sub-opex', 'ops')">Operating Expenses</button>
+                </div>
+                
+                <div class="sub-tab-content active" id="sub-stages">
+                    <div class="panel" style="max-width:600px;">
+                        <h2>Multi-Stage Horizon <button class="btn" onclick="addStage()">+ Add Stage</button></h2>
+                        <div id="stagesContainer"></div>
+                        <div class="input-group" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
+                            <label style="font-weight:700;">Terminal Growth (Perpetuity) %</label><input type="number" id="tgr" value="4.0" step="0.1" onchange="runModel()">
+                        </div>
+                    </div>
+                </div>
+                <div class="sub-tab-content" id="sub-rev">
+                    <div class="panel" style="max-width:800px;">
+                        <h2>Revenue Streams <button class="btn" onclick="addRev()">+ Add Stream</button></h2>
+                        <div id="revContainer"></div>
+                        <p style="font-size:11px; color:var(--text-muted); margin:10px 0 0 0;">Toggle between Flat Base Amount vs Units x Price.</p>
+                    </div>
+                </div>
+                <div class="sub-tab-content" id="sub-opex">
+                    <div class="panel" style="max-width:800px;">
+                        <h2>Operating Expenses <button class="btn" onclick="addOpex()">+ Add Expense</button></h2>
+                        <div id="opexContainer"></div>
+                        
+                        <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
+                            <h3 style="font-size:14px; color:var(--text-main); margin:0 0 12px 0;">COGS Calculation</h3>
+                            <div class="input-group" style="max-width:400px;">
+                                <select id="cogsType" onchange="runModel()" style="width:160px; margin-right:10px;">
+                                    <option value="margin">% of Total Rev</option>
+                                    <option value="unit" id="cogsUnitOpt">Cost Per Unit ($)</option>
+                                </select>
+                                <input type="number" id="cogsVal" value="35" onchange="runModel()">
+                            </div>
+                        </div>
+                        <p style="font-size:11px; color:var(--text-muted); margin:15px 0 0 0;">* "Per Unit" expenses require at least one "Units x Price" revenue stream to generate Total Volume.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: BALANCE SHEET DRIVERS -->
+            <div id="tab-bs" class="tab-content">
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchSubTab(event, 'sub-assets', 'bs')">Operating Assets</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab(event, 'sub-liabs', 'bs')">Operating Liabilities</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab(event, 'sub-struct', 'bs')">Structural Drivers</button>
+                </div>
+
+                <div class="sub-tab-content active" id="sub-assets">
+                    <div class="panel" style="max-width:600px;">
+                        <h2>Operating Assets <button class="btn" onclick="addAsset()">+ Add Asset</button></h2>
+                        <div id="assetContainer"></div>
+                        <p style="font-size:11px; color:var(--text-muted); margin:10px 0 0 0;">Name | Yr 0 Base (<span class="curr-lbl">$</span>M) | % of Rev</p>
+                    </div>
+                </div>
+                <div class="sub-tab-content" id="sub-liabs">
+                    <div class="panel" style="max-width:600px;">
+                        <h2>Operating Liabilities <button class="btn" onclick="addLiab()">+ Add Liab</button></h2>
+                        <div id="liabContainer"></div>
+                        <p style="font-size:11px; color:var(--text-muted); margin:10px 0 0 0;">Name | Yr 0 Base (<span class="curr-lbl">$</span>M) | % of Rev</p>
+                    </div>
+                </div>
+                <div class="sub-tab-content" id="sub-struct">
+                    <div class="panel" style="max-width:600px;">
+                        <h2>Structural Drivers & Yr 0</h2>
+                        <div class="input-group"><label>CapEx (% of Rev)</label><input type="number" id="capexPct" value="5" onchange="runModel()"></div>
+                        <div class="input-group"><label>D&A (% of PP&E)</label><input type="number" id="deprPct" value="10" onchange="runModel()"></div>
+                        <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+                        <div class="input-group"><label>Yr 0 Cash (<span class="curr-lbl">$</span>M)</label><input type="number" id="bCash" value="100" onchange="runModel()"></div>
+                        <div class="input-group"><label>Yr 0 PP&E (<span class="curr-lbl">$</span>M)</label><input type="number" id="bPPE" value="800" onchange="runModel()"></div>
+                        <div class="input-group"><label>Yr 0 Debt (<span class="curr-lbl">$</span>M)</label><input type="number" id="bDebt" value="400" onchange="runModel()"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: FINANCIAL STATEMENTS -->
+            <div id="tab-fin" class="tab-content">
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchSubTab(event, 'sub-pl', 'fin')">Income Statement</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab(event, 'sub-bal', 'fin')">Balance Sheet</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab(event, 'sub-cf', 'fin')">Cash Flow</button>
+                </div>
+                <div class="table-container sub-tab-content active" id="sub-pl"></div>
+                <div class="table-container sub-tab-content" id="sub-bal"></div>
+                <div class="table-container sub-tab-content" id="sub-cf"></div>
+            </div>
+
+            <!-- TAB 5: DCF VALUATION -->
+            <div id="tab-val" class="tab-content">
+                <div class="table-container" id="dcfContainer" style="margin-bottom: 25px;"></div>
+                <div class="panel" style="max-width: 600px; margin: 0 auto; border: 2px solid var(--accent); background: var(--bg-panel);">
+                    <h2 style="justify-content: center; border-bottom: none; color: var(--accent); font-size: 20px; margin-bottom: 25px;">Valuation Output</h2>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size: 15px;">
+                        <span style="color:var(--text-muted); font-weight:500;">Sum of PV UFCF:</span> <strong id="outPvUfcf">$0.0 M</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size: 15px;">
+                        <span style="color:var(--text-muted); font-weight:500;">Terminal Value (TV):</span> <strong id="outTv">$0.0 M</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border); font-size: 15px;">
+                        <span style="color:var(--text-muted); font-weight:500;">PV of Terminal Value:</span> <strong id="outPvTv">$0.0 M</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:24px; font-weight:700; color:var(--text-main); align-items: center;">
+                        <span>Implied Enterprise Value:</span> <span id="outEvFinal" style="color: var(--accent);">$0.0 M</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: AI ANALYST INSIGHTS -->
+            <div id="tab-insights" class="tab-content">
+                <div class="panel" style="margin-bottom: 30px;">
+                    <h2 style="border:none; margin-bottom:5px;">Automated Deal Insights</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 20px;">Based on the current financial projections and valuation drivers, the DealCraft engine has identified the following strengths and risks:</p>
+                    <div class="insight-grid" id="insightsContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 7: CURRENCY & SETTINGS -->
+            <div id="tab-curr" class="tab-content">
+                <div class="panel" style="max-width: 600px;">
+                    <h2>Global Currency Conversion</h2>
+                    <div class="input-group">
+                        <label>Target Currency</label>
+                        <select id="currSymbol" class="text-input" style="width: 220px;" onchange="updateCurrency()">
+                            <option value="$">$ - US Dollar (USD)</option>
+                            <option value="€">€ - Euro (EUR)</option>
+                            <option value="£">£ - British Pound (GBP)</option>
+                            <option value="₹">₹ - Indian Rupee (INR)</option>
+                            <option value="¥">¥ - Japanese Yen (JPY)</option>
+                            <option value="¥">¥ - Chinese Yuan (CNY)</option>
+                            <option value="A$">A$ - Australian Dollar (AUD)</option>
+                            <option value="C$">C$ - Canadian Dollar (CAD)</option>
+                            <option value="CHF">CHF - Swiss Franc (CHF)</option>
+                            <option value="HK$">HK$ - Hong Kong Dollar (HKD)</option>
+                            <option value="S$">S$ - Singapore Dollar (SGD)</option>
+                            <option value="kr">kr - Swedish Krona (SEK)</option>
+                            <option value="₩">₩ - South Korean Won (KRW)</option>
+                            <option value="R$">R$ - Brazilian Real (BRL)</option>
+                            <option value="R">R - South African Rand (ZAR)</option>
+                            <option value="د.إ">د.إ - UAE Dirham (AED)</option>
+                            <option value="₺">₺ - Turkish Lira (TRY)</option>
+                            <option value="₽">₽ - Russian Ruble (RUB)</option>
+                            <option value="₪">₪ - Israeli Shekel (ILS)</option>
+                            <option value="฿">฿ - Thai Baht (THB)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Exchange Rate (Multiplier)</label>
+                        <input type="number" id="exchRate" value="1.00" step="0.01" onchange="updateCurrency()">
+                    </div>
+                    <div style="background: var(--bg-input); padding: 15px; border-radius: 6px; border: 1px solid var(--border); margin-top: 20px;">
+                        <p style="font-size:12px; color:var(--text-muted); margin:0 0 10px 0; line-height: 1.5;">
+                            <strong>How it works:</strong> Base inputs (like Yr 0 Cash) remain in your original currency. The engine applies the multiplier exclusively to the generated Output Tables (P&L, BS, CF, DCF) and Dashboard Valuations.
+                        </p>
+                        <p style="font-size:12px; color:var(--text-muted); margin:0; line-height: 1.5;">
+                            <em>Example:</em> If inputs are in USD and you want outputs in INR, set the Symbol to <strong>₹</strong> and the Multiplier to <strong>83.5</strong>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+    <script>
+        // GLOBALS
+        window.currSym = '$';
+        window.exchRate = 1.0;
+        window.masterMatrix = [];
+        window.masterTotalPeriods = 0;
+
+        // MODAL TOGGLES
+        function openResetModal() { document.getElementById('resetModal').classList.add('active'); }
+        function closeResetModal() { document.getElementById('resetModal').classList.remove('active'); }
+
+        // RESET ENGINE (True Zero-Out)
+        function resetModelDefaults() {
+            closeResetModal();
+
+            // 1. Wipe dynamic arrays to a blank slate (1 empty row each)
+            stages = [{ id: Date.now(), years: 5, growth: 0 }];
+            revenues = [{ id: Date.now(), name: "Stream 1", type: 'flat', vol: 0, price: 0, base: 0 }];
+            expenses = [{ id: Date.now(), name: "Expense 1", type: 'margin', margin: 0, unitCost: 0, base: 0 }];
+            opAssets = [];
+            opLiabs = [];
+
+            // 2. Wipe WACC & Capital Structure inputs to 0
+            document.getElementById('rf').value = 0;
+            document.getElementById('beta').value = 0;
+            document.getElementById('erp').value = 0;
+            document.getElementById('d1').value = 0;
+            document.getElementById('p0').value = 1; // Prevent Div/0
+            document.getElementById('dgm_g').value = 0;
+            document.getElementById('directKe').value = 0;
+            
+            document.getElementById('directKd').value = 0;
+            document.getElementById('kd_irr_i').value = 0;
+            document.getElementById('kd_irr_np').value = 1; // Prevent Div/0
+            document.getElementById('kd_red_i').value = 0;
+            document.getElementById('kd_red_np').value = 1; // Prevent Div/0
+            document.getElementById('kd_red_rv').value = 1;
+            document.getElementById('kd_red_n').value = 1; // Prevent Div/0
+
+            document.getElementById('directKp').value = 0;
+            document.getElementById('kp_irr_pd').value = 0;
+            document.getElementById('kp_irr_np').value = 1; // Prevent Div/0
+            document.getElementById('kp_red_pd').value = 0;
+            document.getElementById('kp_red_np').value = 1; // Prevent Div/0
+            document.getElementById('kp_red_rv').value = 1;
+            document.getElementById('kp_red_n').value = 1; // Prevent Div/0
+
+            document.getElementById('tax').value = 0;
+            document.getElementById('we').value = 100; // 100% equity default to prevent WACC NaN
+            document.getElementById('wd').value = 0;
+            document.getElementById('wp').value = 0;
+            
+            // 3. Wipe Operation & Balance Sheet Drivers
+            document.getElementById('tgr').value = 0;
+            document.getElementById('cogsType').value = 'margin';
+            document.getElementById('cogsVal').value = 0;
+            document.getElementById('capexPct').value = 0;
+            document.getElementById('deprPct').value = 0;
+            document.getElementById('bCash').value = 0;
+            document.getElementById('bPPE').value = 0;
+            document.getElementById('bDebt').value = 0;
+
+            // 4. Wipe Currency
+            document.getElementById('currSymbol').value = '$';
+            document.getElementById('exchRate').value = 1.00;
+            window.currSym = '$';
+            window.exchRate = 1.0;
+
+            // 5. Default to Direct Input methods for a cleaner visual slate
+            document.getElementById('keMethod').value = 'direct';
+            document.getElementById('kdMethod').value = 'direct';
+            document.getElementById('kpMethod').value = 'direct';
+            
+            // 6. Force Full Re-render of DOM and Dashboard
+            toggleMethods();
+            renderInputs();
+            runModel();
+
+            // 7. Explicitly clear charts and insights
+            setTimeout(() => {
+                renderItemChart();
+                renderYearChart();
+                renderMarginChart();
+                renderWaterfallChart();
+                renderInsights(0); 
+            }, 100);
+        }
+
+        function updateCurrency() {
+            window.currSym = document.getElementById('currSymbol').value || '$';
+            window.exchRate = parseFloat(document.getElementById('exchRate').value) || 1.0;
+            document.querySelectorAll('.curr-lbl').forEach(el => el.innerText = window.currSym);
+            
+            const cogsUnitOpt = document.getElementById('cogsUnitOpt');
+            if (cogsUnitOpt) cogsUnitOpt.text = `Cost Per Unit (${window.currSym})`;
+            
+            renderInputs();
+            runModel();
+        }
+
+        // PDF EXPORT LOGIC
+        function openExportModal() { document.getElementById('exportModal').classList.add('active'); }
+        function closeExportModal() { document.getElementById('exportModal').classList.remove('active'); }
+
+        function executeExport() {
+            const content = document.getElementById('exportContent').value;
+            const orientation = document.getElementById('exportOrientation').value;
+
+            let styleElem = document.getElementById('printOrientationStyle');
+            if (!styleElem) {
+                styleElem = document.createElement('style');
+                styleElem.id = 'printOrientationStyle';
+                document.head.appendChild(styleElem);
+            }
+            styleElem.innerHTML = `@page { size: ${orientation}; margin: 10mm; }`;
+
+            document.body.className = ''; 
+            document.body.classList.add(`print-${content}`);
+
+            setTimeout(() => {
+                window.print();
+                document.body.className = '';
+                styleElem.innerHTML = '';
+                closeExportModal();
+            }, 150);
+        }
+
+        // UI TOGGLES
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+
+        function switchTab(evt, tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.sidebar .tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+            
+            if (tabId === 'tab-dash') {
+                setTimeout(() => { renderItemChart(); renderYearChart(); renderMarginChart(); renderWaterfallChart(); }, 10);
+            }
+        }
+
+        function switchSubTab(evt, tabId, group) {
+            const parent = evt.currentTarget.closest('.tab-content');
+            parent.querySelectorAll('.sub-tab-content').forEach(tab => tab.classList.remove('active'));
+            parent.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+            
+            if (group === 'dash') {
+                setTimeout(() => { renderItemChart(); renderYearChart(); renderMarginChart(); renderWaterfallChart(); }, 10);
+            }
+        }
+
+        // STATE MANAGEMENT
+        let stages = [{ id: 1, years: 3, growth: 15 }, { id: 2, years: 5, growth: 10 }];
+        let revenues = [
+            { id: 1, name: "Product Sales", type: 'unit', vol: 10, price: 50, base: 500 },
+            { id: 2, name: "Services", type: 'flat', vol: 0, price: 0, base: 150 }
+        ];
+        let expenses = [
+            { id: 1, name: "R&D", type: 'margin', margin: 15, unitCost: 0, base: 0 },
+            { id: 2, name: "Cloud Hosting", type: 'unit', margin: 0, unitCost: 5, base: 0 },
+            { id: 3, name: "Fixed SG&A", type: 'flat', margin: 0, unitCost: 0, base: 50 }
+        ];
+        let opAssets = [{ id: 1, name: "Accounts Rec.", base: 80, pctRev: 10 }, { id: 2, name: "Inventory", base: 40, pctRev: 5 }];
+        let opLiabs = [{ id: 1, name: "Accounts Pay.", base: 60, pctRev: 8 }, { id: 2, name: "Accrued Exp.", base: 20, pctRev: 2 }];
+
+        // RENDER INPUT DOM
+        function renderInputs() {
+            document.getElementById('stagesContainer').innerHTML = stages.map((s, i) => `
+                <div class="dynamic-row">
+                    <span style="color:var(--accent); font-weight:700; width: 60px; font-size:12px;">Stage ${i+1}</span>
+                    <input type="number" value="${s.years}" onchange="updateStage(${i}, 'years', this.value)" placeholder="Yrs">
+                    <input type="number" value="${s.growth}" onchange="updateStage(${i}, 'growth', this.value)" placeholder="Grw %">
+                    <button class="btn btn-danger" onclick="removeStage(${i})">✕</button>
+                </div>
+            `).join('');
+
+            document.getElementById('revContainer').innerHTML = revenues.map((r, i) => `
+                <div class="dynamic-row">
+                    <input type="text" class="text-input" value="${r.name}" onchange="updateRev(${i}, 'name', this.value)" style="min-width:120px;">
+                    <select onchange="updateRev(${i}, 'type', this.value)" style="width:120px;">
+                        <option value="flat" ${r.type==='flat'?'selected':''}>Flat Base (${window.currSym}M)</option>
+                        <option value="unit" ${r.type==='unit'?'selected':''}>Units x Price</option>
+                    </select>
+                    ${r.type === 'unit' ? 
+                        `<input type="number" value="${r.vol}" onchange="updateRev(${i}, 'vol', this.value)" placeholder="Vol (M)">
+                         <input type="number" value="${r.price}" onchange="updateRev(${i}, 'price', this.value)" placeholder="Price (${window.currSym})">` :
+                        `<input type="number" value="${r.base}" onchange="updateRev(${i}, 'base', this.value)" placeholder="Base ${window.currSym}M">`
+                    }
+                    <button class="btn btn-danger" onclick="removeRev(${i})">✕</button>
+                </div>
+            `).join('');
+
+            document.getElementById('opexContainer').innerHTML = expenses.map((e, i) => `
+                <div class="dynamic-row">
+                    <input type="text" class="text-input" value="${e.name}" onchange="updateOpex(${i}, 'name', this.value)" style="min-width:120px;">
+                    <select onchange="updateOpex(${i}, 'type', this.value)" style="width:120px;">
+                        <option value="margin" ${e.type==='margin'?'selected':''}>% of Total Rev</option>
+                        <option value="unit" ${e.type==='unit'?'selected':''}>Per Unit Cost</option>
+                        <option value="flat" ${e.type==='flat'?'selected':''}>Flat Fixed (${window.currSym}M)</option>
+                    </select>
+                    ${e.type === 'margin' ? `<input type="number" value="${e.margin}" onchange="updateOpex(${i}, 'margin', this.value)" placeholder="% Margin">` : ''}
+                    ${e.type === 'unit' ? `<input type="number" value="${e.unitCost}" onchange="updateOpex(${i}, 'unitCost', this.value)" placeholder="Cost/Unit (${window.currSym})">` : ''}
+                    ${e.type === 'flat' ? `<input type="number" value="${e.base}" onchange="updateOpex(${i}, 'base', this.value)" placeholder="Fixed ${window.currSym}M">` : ''}
+                    <button class="btn btn-danger" onclick="removeOpex(${i})">✕</button>
+                </div>
+            `).join('');
+
+            document.getElementById('assetContainer').innerHTML = opAssets.map((a, i) => `
+                <div class="dynamic-row">
+                    <input type="text" class="text-input" value="${a.name}" onchange="updateAsset(${i}, 'name', this.value)">
+                    <input type="number" value="${a.base}" onchange="updateAsset(${i}, 'base', this.value)" placeholder="Base ${window.currSym}M">
+                    <input type="number" value="${a.pctRev}" onchange="updateAsset(${i}, 'pctRev', this.value)" placeholder="% Rev">
+                    <button class="btn btn-danger" onclick="removeAsset(${i})">✕</button>
+                </div>
+            `).join('');
+
+            document.getElementById('liabContainer').innerHTML = opLiabs.map((l, i) => `
+                <div class="dynamic-row">
+                    <input type="text" class="text-input" value="${l.name}" onchange="updateLiab(${i}, 'name', this.value)">
+                    <input type="number" value="${l.base}" onchange="updateLiab(${i}, 'base', this.value)" placeholder="Base ${window.currSym}M">
+                    <input type="number" value="${l.pctRev}" onchange="updateLiab(${i}, 'pctRev', this.value)" placeholder="% Rev">
+                    <button class="btn btn-danger" onclick="removeLiab(${i})">✕</button>
+                </div>
+            `).join('');
+            
+            document.querySelectorAll('.curr-lbl').forEach(el => el.innerText = window.currSym);
+        }
+
+        // MUTATORS
+        function addStage() { stages.push({ id: Date.now(), years: 5, growth: 5 }); renderInputs(); runModel(); }
+        function removeStage(index) { if(stages.length > 1) { stages.splice(index, 1); renderInputs(); runModel(); } }
+        function updateStage(index, key, val) { stages[index][key] = parseFloat(val)||0; runModel(); }
+
+        function addRev() { revenues.push({ id: Date.now(), name: "New Stream", type: 'flat', vol: 0, price: 0, base: 100 }); renderInputs(); runModel(); }
+        function removeRev(index) { revenues.splice(index, 1); renderInputs(); runModel(); }
+        function updateRev(index, key, val) { 
+            revenues[index][key] = key === 'name' || key === 'type' ? val : parseFloat(val)||0; 
+            if(key === 'type') renderInputs(); 
+            runModel(); 
+        }
+
+        function addOpex() { expenses.push({ id: Date.now(), name: "New Expense", type: 'margin', margin: 5, unitCost: 5, base: 20 }); renderInputs(); runModel(); }
+        function removeOpex(index) { expenses.splice(index, 1); renderInputs(); runModel(); }
+        function updateOpex(index, key, val) { 
+            expenses[index][key] = key === 'name' || key === 'type' ? val : parseFloat(val)||0; 
+            if(key === 'type') renderInputs();
+            runModel(); 
+        }
+
+        function addAsset() { opAssets.push({ id: Date.now(), name: "New Asset", base: 20, pctRev: 5 }); renderInputs(); runModel(); }
+        function removeAsset(index) { opAssets.splice(index, 1); renderInputs(); runModel(); }
+        function updateAsset(index, key, val) { opAssets[index][key] = key === 'name' ? val : parseFloat(val)||0; runModel(); }
+
+        function addLiab() { opLiabs.push({ id: Date.now(), name: "New Liability", base: 20, pctRev: 5 }); renderInputs(); runModel(); }
+        function removeLiab(index) { opLiabs.splice(index, 1); renderInputs(); runModel(); }
+        function updateLiab(index, key, val) { opLiabs[index][key] = key === 'name' ? val : parseFloat(val)||0; runModel(); }
+
+        // NUMBER FORMATTERS
+        const f = (num) => {
+            const val = (parseFloat(num) || 0) * window.exchRate;
+            const str = Math.abs(val).toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+            if (val <= -0.049) return `<span class="val-negative">(${str})</span>`;
+            return str;
+        };
+
+        const cF = (val) => {
+            if (isNaN(val)) return `<span class="val-negative">Error</span>`;
+            const v = (parseFloat(val) || 0) * window.exchRate;
+            const str = Math.abs(v).toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+            if (v <= -0.049) return `<span class="val-negative">(${window.currSym}${str}) M</span>`;
+            return `${window.currSym}${str} M`;
+        };
+
+        function toggleMethods() {
+            const keM = document.getElementById('keMethod').value;
+            document.getElementById('capmInputs').style.display = keM === 'capm' ? 'block' : 'none';
+            document.getElementById('dgmInputs').style.display = keM === 'dgm' ? 'block' : 'none';
+            document.getElementById('directKeInput').style.display = keM === 'direct' ? 'block' : 'none';
+
+            const kdM = document.getElementById('kdMethod').value;
+            document.getElementById('directKdInput').style.display = kdM === 'direct' ? 'block' : 'none';
+            document.getElementById('irredeemableKdInputs').style.display = kdM === 'irredeemable' ? 'block' : 'none';
+            document.getElementById('redeemableKdInputs').style.display = kdM === 'redeemable' ? 'block' : 'none';
+
+            const kpM = document.getElementById('kpMethod').value;
+            document.getElementById('directKpInput').style.display = kpM === 'direct' ? 'block' : 'none';
+            document.getElementById('irredeemableKpInputs').style.display = kpM === 'irredeemable' ? 'block' : 'none';
+            document.getElementById('redeemableKpInputs').style.display = kpM === 'redeemable' ? 'block' : 'none';
+
+            runModel();
+        }
+
+        // ==========================================
+        // DASHBOARD RENDERING LOGIC
+        // ==========================================
+        function renderItemChart() {
+            const m = window.masterMatrix;
+            if (!m || m.length === 0) return;
+            
+            const item = document.getElementById('dashItemSelect').value;
+            let data = m.map(yr => (yr[item] || 0) * window.exchRate);
+            
+            const maxVal = Math.max(...data, 0);
+            const minVal = Math.min(...data, 0);
+            const range = (maxVal - minVal) || 1; 
+            
+            const zeroY = (maxVal / range) * 100;
+
+            let colsHTML = '';
+            for (let t = 0; t < data.length; t++) {
+                const val = data[t];
+                const pct = (Math.abs(val) / range) * 100;
+                
+                let barStyle = '';
+                if (val >= 0) {
+                    barStyle = `height: ${pct}%; bottom: ${100 - zeroY}%;`;
+                } else {
+                    barStyle = `height: ${pct}%; top: ${zeroY}%;`;
+                }
+
+                const strVal = Math.abs(val).toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+                const displayVal = val < 0 ? `(${window.currSym}${strVal})` : `${window.currSym}${strVal}`;
+                const valColor = val < 0 ? 'var(--danger)' : 'var(--text-main)';
+
+                colsHTML += `
+                    <div class="chart-col">
+                        <div class="chart-val" style="${val >= 0 ? `bottom: calc(${100 - zeroY}% + ${pct}% + 5px);` : `top: calc(${zeroY}% + ${pct}% + 5px);`} color: ${valColor};">${displayVal}</div>
+                        <div class="chart-bar ${val < 0 ? 'negative' : ''}" style="${barStyle}"></div>
+                        <div class="chart-label">Yr ${t}</div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('itemChartContainer').innerHTML = `
+                <div class="chart-wrapper">
+                    <div class="chart-gridline" style="top: 0%;"></div>
+                    <div class="chart-gridline" style="top: 25%;"></div>
+                    <div class="chart-gridline" style="top: 50%;"></div>
+                    <div class="chart-gridline" style="top: 75%;"></div>
+                    <div class="chart-zero-line" style="top: ${zeroY}%;"></div>
+                    ${colsHTML}
+                </div>
+            `;
+        }
+
+        // NEW: SVG MARGIN LINE CHART
+        function renderMarginChart() {
+            const m = window.masterMatrix;
+            if (!m || m.length === 0) return;
+
+            let data = [];
+            m.forEach((yr, t) => {
+                let gm = yr.totalRev > 0 ? (yr.gp / yr.totalRev) * 100 : 0;
+                let ebitda = yr.totalRev > 0 ? (yr.ebitda / yr.totalRev) * 100 : 0;
+                let ni = yr.totalRev > 0 ? (yr.ni / yr.totalRev) * 100 : 0;
+                data.push({ t, gm, ebitda, ni });
+            });
+
+            // Find scale
+            let allVals = data.flatMap(d => [d.gm, d.ebitda, d.ni]);
+            let maxVal = Math.max(...allVals, 10);
+            let minVal = Math.min(...allVals, 0);
+            
+            // Pad the top a bit
+            maxVal = Math.ceil(maxVal / 10) * 10 + 10;
+            if (minVal < 0) minVal = Math.floor(minVal / 10) * 10 - 10;
+
+            const range = maxVal - minVal;
+            const w = 1000; const h = 250;
+
+            const mapY = (val) => h - (((val - minVal) / range) * h);
+            const mapX = (t) => (t / (data.length - 1)) * w;
+
+            let gmPts = data.map(d => `${mapX(d.t)},${mapY(d.gm)}`).join(' ');
+            let ebPts = data.map(d => `${mapX(d.t)},${mapY(d.ebitda)}`).join(' ');
+            let niPts = data.map(d => `${mapX(d.t)},${mapY(d.ni)}`).join(' ');
+
+            let yLabels = '';
+            for(let i=0; i<=4; i++) {
+                let val = maxVal - (range * (i/4));
+                let yPos = (i/4) * h;
+                yLabels += `<div style="position:absolute; right:0; top:${yPos}px; transform:translateY(-50%);">${val.toFixed(0)}%</div>`;
+            }
+
+            let xLabels = data.map(d => `<div style="flex:1; text-align:center;">Yr ${d.t}</div>`).join('');
+
+            document.getElementById('marginChartContainer').innerHTML = `
+                <div class="svg-chart-labels-y">${yLabels}</div>
+                <div class="svg-wrapper">
+                    <svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+                        <line x1="0" y1="${h*0.25}" x2="${w}" y2="${h*0.25}" stroke="var(--border)" stroke-dasharray="4,4"/>
+                        <line x1="0" y1="${h*0.5}" x2="${w}" y2="${h*0.5}" stroke="var(--border)" stroke-dasharray="4,4"/>
+                        <line x1="0" y1="${h*0.75}" x2="${w}" y2="${h*0.75}" stroke="var(--border)" stroke-dasharray="4,4"/>
+                        ${minVal < 0 ? `<line x1="0" y1="${mapY(0)}" x2="${w}" y2="${mapY(0)}" stroke="var(--text-main)" stroke-width="1.5"/>` : ''}
+                        
+                        <polyline points="${gmPts}" fill="none" stroke="var(--chart-1)" stroke-width="3" stroke-linejoin="round"/>
+                        <polyline points="${ebPts}" fill="none" stroke="var(--chart-2)" stroke-width="3" stroke-linejoin="round"/>
+                        <polyline points="${niPts}" fill="none" stroke="var(--chart-4)" stroke-width="3" stroke-linejoin="round"/>
+                        
+                        ${data.map(d => `<circle cx="${mapX(d.t)}" cy="${mapY(d.gm)}" r="4" fill="white" stroke="var(--chart-1)" stroke-width="2"/>`).join('')}
+                        ${data.map(d => `<circle cx="${mapX(d.t)}" cy="${mapY(d.ebitda)}" r="4" fill="white" stroke="var(--chart-2)" stroke-width="2"/>`).join('')}
+                        ${data.map(d => `<circle cx="${mapX(d.t)}" cy="${mapY(d.ni)}" r="4" fill="white" stroke="var(--chart-4)" stroke-width="2"/>`).join('')}
+                    </svg>
+                </div>
+                <div class="svg-chart-labels-x">${xLabels}</div>
+            `;
+        }
+
+        // NEW: WATERFALL CHART (UFCF Bridge)
+        function renderWaterfallChart() {
+            const m = window.masterMatrix;
+            if (!m || m.length === 0) return;
+            
+            const yrIdx = parseInt(document.getElementById('dashBridgeYearSelect').value) || 0;
+            if(yrIdx === 0 && m.length > 1) { // Default to Yr 1 if Base Yr is selected since it has better flows
+                document.getElementById('dashBridgeYearSelect').value = 1;
+                return renderWaterfallChart();
+            }
+            const yr = m[yrIdx];
+
+            let bars = [];
+            let currentY = 0;
+            
+            // 1. EBITDA
+            let ebitda = yr.ebitda * window.exchRate;
+            bars.push({ name: 'EBITDA', val: ebitda, start: 0, end: ebitda, type: 'total' });
+            currentY = ebitda;
+            
+            // 2. Cash Taxes
+            let taxes = -yr.taxExp * window.exchRate;
+            bars.push({ name: 'Cash Taxes', val: taxes, start: currentY, end: currentY + taxes, type: 'neg' });
+            currentY += taxes;
+            
+            // 3. CapEx
+            let capex = -yr.capex * window.exchRate;
+            bars.push({ name: 'CapEx', val: capex, start: currentY, end: currentY + capex, type: 'neg' });
+            currentY += capex;
+            
+            // 4. Chg Op Assets (Outflow if increasing)
+            let chgAst = -yr.chgOpAssets * window.exchRate;
+            bars.push({ name: 'Chg Assets', val: chgAst, start: currentY, end: currentY + chgAst, type: chgAst >= 0 ? 'pos' : 'neg' });
+            currentY += chgAst;
+
+            // 5. Chg Op Liabs (Inflow if increasing)
+            let chgLiab = yr.chgOpLiabs * window.exchRate;
+            bars.push({ name: 'Chg Liabs', val: chgLiab, start: currentY, end: currentY + chgLiab, type: chgLiab >= 0 ? 'pos' : 'neg' });
+            currentY += chgLiab;
+
+            // 6. UFCF
+            let ufcf = yr.ufcf * window.exchRate;
+            bars.push({ name: 'UFCF', val: ufcf, start: 0, end: ufcf, type: 'total' });
+
+            // Calculate Scales
+            let allY = bars.flatMap(b => [b.start, b.end]);
+            let maxVal = Math.max(...allY, 0);
+            let minVal = Math.min(...allY, 0);
+            let range = (maxVal - minVal) || 1;
+            const zeroY = (maxVal / range) * 100;
+
+            let colsHTML = '';
+            bars.forEach((b, i) => {
+                let topY = Math.max(b.start, b.end);
+                let botY = Math.min(b.start, b.end);
+                
+                let pctTop = (topY / maxVal) * zeroY; 
+                let pctBot = (botY / maxVal) * zeroY;
+                
+                if (maxVal === 0) { pctTop = 0; pctBot = 0; } // fail safe
+                
+                let heightPct = Math.abs(b.start - b.end) / range * 100;
+                let bottomPct = (botY - minVal) / range * 100;
+
+                let colorClass = '';
+                if (b.type === 'total') colorClass = 'background: var(--accent);';
+                else if (b.type === 'pos') colorClass = 'background: var(--positive);';
+                else colorClass = 'background: var(--danger);';
+
+                const strVal = Math.abs(b.val).toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+                const displayVal = b.val < 0 ? `(${strVal})` : `${strVal}`;
+                const valColor = b.val < 0 ? 'var(--danger)' : 'var(--text-main)';
+
+                // Connectors to next bar
+                let connectorHTML = '';
+                if (i < bars.length - 1) {
+                    connectorHTML = `<div style="position:absolute; right:-50%; width:100%; top:0; border-top:1px dashed var(--text-muted); z-index:1;"></div>`;
+                }
+
+                colsHTML += `
+                    <div class="chart-col">
+                        <div class="chart-val" style="bottom: calc(${bottomPct + heightPct}% + 5px); color: ${valColor};">${displayVal}</div>
+                        <div style="position: absolute; width: 70%; max-width: 60px; border-radius: 3px; ${colorClass} height: ${heightPct}%; bottom: ${bottomPct}%; z-index:2;">
+                            ${connectorHTML}
+                        </div>
+                        <div class="chart-label">${b.name}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('waterfallChartContainer').innerHTML = `
+                <div class="chart-wrapper" style="height: 280px;">
+                    <div class="chart-zero-line" style="top: ${zeroY}%;"></div>
+                    ${colsHTML}
+                </div>
+            `;
+        }
+
+        function renderYearChart() {
+            const m = window.masterMatrix;
+            if (!m || m.length === 0) return;
+            
+            const yrIdx = parseInt(document.getElementById('dashYearSelect').value) || 0;
+            const yrData = m[yrIdx];
+
+            const colors = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', 'var(--chart-6)'];
+
+            // Revenue Composition
+            let totalRev = yrData.totalRev || 0.001; 
+            let revHTML = ''; let revLegend = '';
+            yrData.revLines.forEach((r, i) => {
+                const w = (r.val / totalRev) * 100;
+                const c = colors[i % colors.length];
+                if (w > 0) revHTML += `<div class="h-chart-segment" style="width: ${w}%; background: ${c};" title="${r.name}: ${w.toFixed(1)}%">${w > 5 ? w.toFixed(1) + '%' : ''}</div>`;
+                revLegend += `<div class="legend-item"><div class="legend-color" style="background: ${c};"></div>${r.name} (${window.currSym}${(r.val * window.exchRate).toFixed(1)}M)</div>`;
+            });
+
+            document.getElementById('yearRevChart').innerHTML = `
+                <div class="h-chart-wrapper">
+                    <div class="h-chart-bar">${revHTML}</div>
+                    <div class="h-chart-legend">${revLegend}</div>
+                </div>
+            `;
+
+            // Opex Composition
+            let totalOpex = yrData.totalOpex + yrData.cogs + yrData.depr || 0.001;
+            let expHTML = ''; let expLegend = ''; let expIndex = 0;
+
+            const addExpSeg = (name, val) => {
+                if (val <= 0) return;
+                const w = (val / totalOpex) * 100;
+                const c = colors[expIndex % colors.length];
+                expHTML += `<div class="h-chart-segment" style="width: ${w}%; background: ${c};" title="${name}: ${w.toFixed(1)}%">${w > 5 ? w.toFixed(1) + '%' : ''}</div>`;
+                expLegend += `<div class="legend-item"><div class="legend-color" style="background: ${c};"></div>${name} (${window.currSym}${(val * window.exchRate).toFixed(1)}M)</div>`;
+                expIndex++;
+            };
+
+            addExpSeg('COGS', yrData.cogs);
+            yrData.expLines.forEach(e => addExpSeg(e.name, e.val));
+            addExpSeg('D&A', yrData.depr);
+
+            document.getElementById('yearExpChart').innerHTML = `
+                <div class="h-chart-wrapper">
+                    <div class="h-chart-bar">${expHTML}</div>
+                    <div class="h-chart-legend">${expLegend}</div>
+                </div>
+            `;
+        }
+
+        // NEW: AUTOMATED INSIGHTS ENGINE (Deeply Item-Specific)
+        function renderInsights(ev) {
+            const m = window.masterMatrix;
+            if (!m || m.length <= 1) return;
+
+            let html = '';
+            const t0 = m[0];
+            const t1 = m[1];
+            const tN = m[m.length - 1];
+            const totalPeriods = m.length - 1;
+
+            // 1. Top-Line Growth
+            const cagr = t0.totalRev > 0 ? (Math.pow(tN.totalRev / t0.totalRev, 1 / totalPeriods) - 1) * 100 : 0;
+            if (cagr > 25) {
+                html += `<div class="insight-card warning"><div class="insight-header">🚀 Aggressive Growth Curve</div><p>Total Revenue scales from <strong>${cF(t0.totalRev)}</strong> to <strong>${cF(tN.totalRev)}</strong> (CAGR: ${cagr.toFixed(1)}%). Ensure the Total Addressable Market (TAM) and operating capacity can support this hyper-growth without breaking down.</p></div>`;
+            } else if (cagr > 0) {
+                html += `<div class="insight-card success"><div class="insight-header">📈 Steady, Defensible Growth</div><p>Revenue grows healthily from <strong>${cF(t0.totalRev)}</strong> to <strong>${cF(tN.totalRev)}</strong> (CAGR: ${cagr.toFixed(1)}%). This indicates a stable trajectory suitable for standard discount rates.</p></div>`;
+            } else {
+                html += `<div class="insight-card warning"><div class="insight-header">📉 Flat or Declining Revenue</div><p>Revenue shifts from <strong>${cF(t0.totalRev)}</strong> to <strong>${cF(tN.totalRev)}</strong> (CAGR: ${cagr.toFixed(1)}%). Your valuation is entirely dependent on cost-cutting, extreme margin efficiency, and terminal value extraction.</p></div>`;
+            }
+
+            // 2. Revenue Stream Concentration (Item-Specific)
+            let maxStream = { name: '', val: 0 };
+            tN.revLines.forEach(r => { if (r.val > maxStream.val) maxStream = r; });
+            const concentration = tN.totalRev > 0 ? (maxStream.val / tN.totalRev) * 100 : 0;
+            
+            if (concentration >= 70 && tN.revLines.length > 1) {
+                html += `<div class="insight-card info"><div class="insight-header">🎯 High Revenue Concentration</div><p>By Year ${totalPeriods}, your largest stream, <strong>"${maxStream.name}"</strong>, drives <strong>${concentration.toFixed(1)}%</strong> of the total top-line (${cF(maxStream.val)}). High dependence on a single product/service increases systemic risk.</p></div>`;
+            } else if (tN.revLines.length > 1) {
+                html += `<div class="insight-card success"><div class="insight-header">🔀 Diversified Revenue Mix</div><p>By Year ${totalPeriods}, your largest stream (<strong>"${maxStream.name}"</strong>) is only <strong>${concentration.toFixed(1)}%</strong> of revenue. The business model shows strong diversification across multiple channels.</p></div>`;
+            }
+
+            // 3. Gross Margin Trend (Item-Specific COGS Analysis)
+            const gm0 = t0.totalRev > 0 ? (t0.gp / t0.totalRev) * 100 : 0;
+            const gmN = tN.totalRev > 0 ? (tN.gp / tN.totalRev) * 100 : 0;
+            const gmDelta = gmN - gm0;
+
+            if (gmDelta > 2) {
+                html += `<div class="insight-card success"><div class="insight-header">🔼 Gross Margin Expansion</div><p>Gross margin improves from <strong>${gm0.toFixed(1)}%</strong> in Year 0 to <strong>${gmN.toFixed(1)}%</strong> in Year ${totalPeriods}. The model projects economies of scale and strong pricing power over direct costs.</p></div>`;
+            } else if (gmDelta < -2) {
+                html += `<div class="insight-card warning"><div class="insight-header">🔽 Gross Margin Compression</div><p>Gross margin decays from <strong>${gm0.toFixed(1)}%</strong> to <strong>${gmN.toFixed(1)}%</strong>. Ensure this margin sacrifice is driving enough absolute volume (Units x Price) to generate meaningful EBITDA.</p></div>`;
+            } else {
+                html += `<div class="insight-card info"><div class="insight-header">⚖️ Stable Unit Economics</div><p>Gross margins hold steady at roughly <strong>${gmN.toFixed(1)}%</strong> over the forecast. Costs scale perfectly in tandem with revenue streams.</p></div>`;
+            }
+
+            // 4. Total Cash Flow Profile (Operations + Investing)
+            let minCash = Math.min(...m.map(yr => yr.cash));
+            let totalCFO = m.reduce((acc, yr) => acc + yr.cfo, 0) - t0.cfo; // Exclude base year stat
+            let totalCFI = m.reduce((acc, yr) => acc + yr.cfi, 0) - t0.cfi;
+            
+            if (minCash < 0) {
+                html += `<div class="insight-card warning"><div class="insight-header">🚨 Operational Insolvency Risk</div><p>The company burns through cash reserves, hitting a deficit of <strong>${cF(minCash)}</strong>. Immediate capital injection (debt/equity) or CapEx/Working Capital optimization is required.</p></div>`;
+            } else if (totalCFO + totalCFI > 0) {
+                html += `<div class="insight-card success"><div class="insight-header">💵 Structurally Cash Generative</div><p>Across the projection, operations generate more cash than Capital Expenditures consume. The lowest cash point hits a safe <strong>${cF(minCash)}</strong>.</p></div>`;
+            } else {
+                html += `<div class="insight-card warning"><div class="insight-header">🔥 High Cash Burn Profile</div><p>Operations and CapEx consume more cash than generated. The business survives strictly because of the initial Year 0 buffer (<strong>${cF(t0.cash)}</strong>).</p></div>`;
+            }
+
+            // 5. Valuation Multiple Sanity Check
+            if (ev > 0 && t1.ebitda > 0) {
+                const entryMultiple = ev / t1.ebitda;
+                if (entryMultiple > 18) {
+                    html += `<div class="insight-card warning"><div class="insight-header">🔮 Rich Valuation Multiple</div><p>The Enterprise Value implies a Yr 1 EV/EBITDA multiple of <strong>${entryMultiple.toFixed(1)}x</strong>. This premium requires flawless execution to justify. Check if your Terminal Growth Rate (${(parseFloat(document.getElementById('tgr').value)||0).toFixed(1)}%) is artificially inflating the TV.</p></div>`;
+                } else if (entryMultiple < 5) {
+                    html += `<div class="insight-card info"><div class="insight-header">🏷️ Distressed / Value Asset</div><p>Implied Yr 1 EV/EBITDA is only <strong>${entryMultiple.toFixed(1)}x</strong>. This usually signals a distressed asset, heavy debt loads, or ultra-conservative discount rates.</p></div>`;
+                } else {
+                    html += `<div class="insight-card success"><div class="insight-header">✅ Market-Clearing Valuation</div><p>Implied Yr 1 EV/EBITDA is <strong>${entryMultiple.toFixed(1)}x</strong>, aligning perfectly with healthy, mid-market corporate valuations.</p></div>`;
+                }
+            } else if (ev <= 0) {
+                 html += `<div class="insight-card warning"><div class="insight-header">❌ Invalid Valuation Math</div><p>The DCF failed. Check if your WACC (${document.getElementById('dashWacc').innerText}) is lower than your Terminal Growth Rate, or if the business never achieves positive cash flow.</p></div>`;
+            }
+
+            document.getElementById('insightsContainer').innerHTML = html;
+        }
+
+        // MASTER ENGINE
+        function runModel() {
+            const tax = parseFloat(document.getElementById('tax').value)/100 || 0;
+
+            // WACC Calc
+            let ke; const keM = document.getElementById('keMethod').value;
+            if (keM === 'capm') {
+                ke = (parseFloat(document.getElementById('rf').value)/100) + (parseFloat(document.getElementById('beta').value) * (parseFloat(document.getElementById('erp').value)/100));
+            } else if (keM === 'dgm') {
+                ke = (parseFloat(document.getElementById('d1').value) / parseFloat(document.getElementById('p0').value)) + (parseFloat(document.getElementById('dgm_g').value)/100);
+            } else { ke = parseFloat(document.getElementById('directKe').value)/100; }
+            document.getElementById('outKe').innerHTML = (ke * 100).toFixed(2) + '%';
+            
+            let kd; const kdM = document.getElementById('kdMethod').value;
+            if (kdM === 'irredeemable') {
+                kd = parseFloat(document.getElementById('kd_irr_i').value) / parseFloat(document.getElementById('kd_irr_np').value); 
+            } else if (kdM === 'redeemable') {
+                const i = parseFloat(document.getElementById('kd_red_i').value), np = parseFloat(document.getElementById('kd_red_np').value), rv = parseFloat(document.getElementById('kd_red_rv').value), n = parseFloat(document.getElementById('kd_red_n').value);
+                kd = (i + ((rv - np) / n)) / ((rv + np) / 2);
+            } else { kd = parseFloat(document.getElementById('directKd').value)/100; }
+            document.getElementById('outKd').innerHTML = (kd * 100).toFixed(2) + '% (Pre-Tax)';
+
+            let kp; const kpM = document.getElementById('kpMethod').value;
+            if (kpM === 'irredeemable') {
+                kp = parseFloat(document.getElementById('kp_irr_pd').value) / parseFloat(document.getElementById('kp_irr_np').value);
+            } else if (kpM === 'redeemable') {
+                const pd = parseFloat(document.getElementById('kp_red_pd').value), np = parseFloat(document.getElementById('kp_red_np').value), rv = parseFloat(document.getElementById('kp_red_rv').value), n = parseFloat(document.getElementById('kp_red_n').value);
+                kp = (pd + ((rv - np) / n)) / ((rv + np) / 2);
+            } else { kp = parseFloat(document.getElementById('directKp').value)/100; }
+            document.getElementById('outKp').innerHTML = (kp * 100).toFixed(2) + '%';
+            
+            let we = parseFloat(document.getElementById('we').value)/100, wd = parseFloat(document.getElementById('wd').value)/100, wp = parseFloat(document.getElementById('wp').value)/100;
+            const totalW = we + wd + wp;
+            if(totalW !== 1 && totalW > 0) { we/=totalW; wd/=totalW; wp/=totalW; }
+
+            const wacc = (we * ke) + (wd * kd * (1 - tax)) + (wp * kp);
+            document.getElementById('dashWacc').innerHTML = (wacc * 100).toFixed(2) + '%';
+
+            // Horizon Mapping
+            let yearMap = [], totalPeriods = 0, currentStage = 1;
+            stages.forEach((s) => {
+                for(let i=0; i<s.years; i++) { totalPeriods++; yearMap[totalPeriods] = { growth: s.growth / 100, stageNum: currentStage }; }
+                currentStage++;
+            });
+            if(totalPeriods === 0) { totalPeriods = 1; yearMap[1] = { growth: 0, stageNum: 1 }; }
+            const tgr = parseFloat(document.getElementById('tgr').value)/100;
+
+            const capexPct = parseFloat(document.getElementById('capexPct').value)/100, deprPct = parseFloat(document.getElementById('deprPct').value)/100;
+            const bCash = parseFloat(document.getElementById('bCash').value), bPPE = parseFloat(document.getElementById('bPPE').value), bDebt = parseFloat(document.getElementById('bDebt').value);
+
+            // Matrix Calc
+            let m = []; for(let t=0; t<=totalPeriods; t++) m.push({ revLines: [], expLines: [], assetLines: [], liabLines: [] });
+
+            for(let t=0; t<=totalPeriods; t++) {
+                
+                let totalRev = 0; let totalVol = 0;
+                revenues.forEach((r, i) => {
+                    let val = 0; let vol = 0;
+                    if (t === 0) {
+                        if (r.type === 'unit') { vol = r.vol; val = r.vol * r.price; } 
+                        else { vol = 0; val = r.base; }
+                    } else {
+                        let prevVol = m[t-1].revLines[i].vol; let prevVal = m[t-1].revLines[i].val;
+                        vol = prevVol * (1 + yearMap[t].growth); val = prevVal * (1 + yearMap[t].growth); 
+                    }
+                    m[t].revLines.push({ name: r.name, val: val, vol: vol });
+                    totalRev += val; totalVol += vol;
+                });
+                m[t].totalRev = totalRev; m[t].totalVol = totalVol;
+
+                const cogsType = document.getElementById('cogsType').value;
+                const cogsVal = parseFloat(document.getElementById('cogsVal').value) || 0;
+                if (cogsType === 'margin') { m[t].cogs = totalRev * (cogsVal / 100); } 
+                else { m[t].cogs = totalVol * cogsVal; }
+                m[t].gp = totalRev - m[t].cogs;
+
+                let totalOpex = 0;
+                expenses.forEach((e, i) => {
+                    let val = 0;
+                    if (e.type === 'margin') val = totalRev * (e.margin / 100);
+                    else if (e.type === 'unit') val = totalVol * e.unitCost;
+                    else if (e.type === 'flat') val = e.base; 
+                    m[t].expLines.push({ name: e.name, val: val }); totalOpex += val;
+                });
+                m[t].totalOpex = totalOpex; m[t].ebitda = m[t].gp - totalOpex;
+
+                if (t===0) { m[t].ppe = bPPE; m[t].depr = m[t].ppe * deprPct; m[t].capex = 0; } 
+                else { m[t].depr = m[t-1].ppe * deprPct; m[t].capex = m[t].totalRev * capexPct; m[t].ppe = m[t-1].ppe + m[t].capex - m[t].depr; }
+
+                m[t].ebit = m[t].ebitda - m[t].depr; m[t].debt = bDebt; m[t].interest = m[t].debt * kd;
+                m[t].ebt = m[t].ebit - m[t].interest; m[t].taxExp = m[t].ebt > 0 ? m[t].ebt * tax : 0; m[t].ni = m[t].ebt - m[t].taxExp;
+
+                let totalOpAssets = 0;
+                opAssets.forEach((a, i) => {
+                    let val = t === 0 ? a.base : m[t].totalRev * (a.pctRev / 100);
+                    m[t].assetLines.push({ name: a.name, val: val }); totalOpAssets += val;
+                });
+                m[t].totalOpAssets = totalOpAssets; m[t].chgOpAssets = t === 0 ? 0 : m[t].totalOpAssets - m[t-1].totalOpAssets;
+
+                let totalOpLiabs = 0;
+                opLiabs.forEach((l, i) => {
+                    let val = t === 0 ? l.base : m[t].totalRev * (l.pctRev / 100);
+                    m[t].liabLines.push({ name: l.name, val: val }); totalOpLiabs += val;
+                });
+                m[t].totalOpLiabs = totalOpLiabs; m[t].chgOpLiabs = t === 0 ? 0 : m[t].totalOpLiabs - m[t-1].totalOpLiabs;
+
+                if (t===0) {
+                    m[t].re = m[t].ni; let assets0 = bCash + m[t].totalOpAssets + m[t].ppe; m[t].equity = assets0 - m[t].debt - m[t].totalOpLiabs - m[t].re; 
+                } else { m[t].re = m[t-1].re + m[t].ni; m[t].equity = m[t-1].equity; }
+
+                if(t===0) { m[t].cfo = 0; m[t].cfi = 0; m[t].netCf = 0; m[t].cash = bCash; } 
+                else {
+                    m[t].cfo = m[t].ni + m[t].depr - m[t].chgOpAssets + m[t].chgOpLiabs; m[t].cfi = -m[t].capex;
+                    m[t].netCf = m[t].cfo + m[t].cfi; m[t].cash = m[t-1].cash + m[t].netCf;
+                }
+
+                m[t].assets = m[t].cash + m[t].totalOpAssets + m[t].ppe; m[t].liabEq = m[t].debt + m[t].totalOpLiabs + m[t].equity + m[t].re;
+                m[t].nopat = m[t].ebit * (1 - tax); m[t].ufcf = t===0 ? 0 : m[t].nopat + m[t].depr - m[t].capex - m[t].chgOpAssets + m[t].chgOpLiabs;
+                m[t].pvUfcf = t===0 ? 0 : m[t].ufcf / Math.pow(1 + wacc, t);
+            }
+
+            // GLOBAL STORE FOR DASHBOARD
+            window.masterMatrix = m;
+            window.masterTotalPeriods = totalPeriods;
+
+            // DCF MATH
+            let sumPv = 0; 
+            for(let i=1; i<=totalPeriods; i++) sumPv += m[i].pvUfcf;
+            let tv = 0; let pvTv = 0; let tvError = false;
+
+            if (wacc > tgr) {
+                tv = (m[totalPeriods].ufcf * (1 + tgr)) / (wacc - tgr);
+                pvTv = tv / Math.pow(1 + wacc, totalPeriods);
+            } else { tvError = true; }
+
+            let ev = tvError ? sumPv : sumPv + pvTv;
+
+            // DASHBOARD DROPDOWN UPDATE
+            let yrSelect = document.getElementById('dashYearSelect');
+            let wfSelect = document.getElementById('dashBridgeYearSelect');
+            if (yrSelect) {
+                const optionsHTML = m.map((_, i) => `<option value="${i}">Year ${i} ${i===0?'(Base)':''}</option>`).join('');
+                
+                const curYr = yrSelect.value;
+                yrSelect.innerHTML = optionsHTML;
+                if (curYr && curYr <= totalPeriods) yrSelect.value = curYr;
+
+                const curWf = wfSelect.value;
+                wfSelect.innerHTML = optionsHTML;
+                if (curWf && curWf <= totalPeriods) wfSelect.value = curWf;
+            }
+
+            // OUTPUT UPDATES 
+            document.getElementById('dashEV').innerHTML = tvError ? `<span class="val-negative" style="font-size:12px;">WACC Error</span>` : cF(ev);
+            document.getElementById('outPvUfcf').innerHTML = cF(sumPv);
+            document.getElementById('outTv').innerHTML = tvError ? `<span class="val-negative" style="font-size:12px;">WACC must be > TGR</span>` : cF(tv);
+            document.getElementById('outPvTv').innerHTML = tvError ? `<span class="val-negative" style="font-size:12px;">WACC must be > TGR</span>` : cF(pvTv);
+            document.getElementById('outEvFinal').innerHTML = tvError ? `<span class="val-negative" style="font-size:14px;">Review Assumptions</span>` : cF(ev);
+
+            // HTML TABLE BUILDER
+            const th = `<tr><th>Line Item (${window.currSym}M)</th><th>Yr 0<br><span class="stage-label" style="background:#64748b;">Base</span></th>` + 
+                m.slice(1).map((_, idx) => { let t = idx + 1; return `<th>Yr ${t}<br><span class="stage-label">Stage ${yearMap[t].stageNum} (${(yearMap[t].growth*100).toFixed(0)}%)</span></th>`; }).join('') + `</tr>`;
+            
+            let revRows = revenues.map((r, i) => `<tr><td style="padding-left:20px;">(+) ${r.name}</td>` + m.map(yr => `<td>${f(yr.revLines[i].val)}</td>`).join('') + `</tr>`).join('');
+            let expRows = expenses.map((e, i) => `<tr><td style="padding-left:20px;">(-) ${e.name}</td>` + m.map(yr => `<td>${f(yr.expLines[i].val)}</td>`).join('') + `</tr>`).join('');
+            let assetRows = opAssets.map((a, i) => `<tr><td style="padding-left:20px;">${a.name}</td>` + m.map(yr => `<td>${f(yr.assetLines[i].val)}</td>`).join('') + `</tr>`).join('');
+            let liabRows = opLiabs.map((l, i) => `<tr><td style="padding-left:20px;">${l.name}</td>` + m.map(yr => `<td>${f(yr.liabLines[i].val)}</td>`).join('') + `</tr>`).join('');
+
+            document.getElementById('sub-pl').innerHTML = `
+                <table class="statement-table">
+                    ${th}
+                    ${revRows}
+                    <tr class="row-total"><td>Total Revenue</td>${m.map(yr=>`<td>${f(yr.totalRev)}</td>`).join('')}</tr>
+                    <tr><td>(-) COGS</td>${m.map(yr=>`<td>${f(yr.cogs)}</td>`).join('')}</tr>
+                    <tr class="row-total"><td>Gross Profit</td>${m.map(yr=>`<td>${f(yr.gp)}</td>`).join('')}</tr>
+                    ${expRows}
+                    <tr class="row-total"><td>EBITDA</td>${m.map(yr=>`<td>${f(yr.ebitda)}</td>`).join('')}</tr>
+                    <tr><td>(-) D&A</td>${m.map(yr=>`<td>${f(yr.depr)}</td>`).join('')}</tr>
+                    <tr class="row-total"><td>EBIT</td>${m.map(yr=>`<td>${f(yr.ebit)}</td>`).join('')}</tr>
+                    <tr><td>(-) Interest Exp (Book)</td>${m.map(yr=>`<td>${f(yr.interest)}</td>`).join('')}</tr>
+                    <tr><td>(-) Taxes</td>${m.map(yr=>`<td>${f(yr.taxExp)}</td>`).join('')}</tr>
+                    <tr class="row-total" style="color:var(--accent);"><td>Net Income</td>${m.map(yr=>`<td>${f(yr.ni)}</td>`).join('')}</tr>
+                </table>
+            `;
+
+            document.getElementById('sub-bal').innerHTML = `
+                <table class="statement-table">
+                    ${th}
+                    <tr><td>Cash & Equivalents</td>${m.map(yr=>`<td>${f(yr.cash)}</td>`).join('')}</tr>
+                    ${assetRows}
+                    <tr><td>PP&E (Net)</td>${m.map(yr=>`<td>${f(yr.ppe)}</td>`).join('')}</tr>
+                    <tr class="row-total"><td>Total Assets</td>${m.map(yr=>`<td>${f(yr.assets)}</td>`).join('')}</tr>
+                    ${liabRows}
+                    <tr><td>Total Debt</td>${m.map(yr=>`<td>${f(yr.debt)}</td>`).join('')}</tr>
+                    <tr><td>Paid-In Equity</td>${m.map(yr=>`<td>${f(yr.equity)}</td>`).join('')}</tr>
+                    <tr><td>Retained Earnings</td>${m.map(yr=>`<td>${f(yr.re)}</td>`).join('')}</tr>
+                    <tr class="row-total"><td>Total L&E</td>${m.map(yr=>`<td>${f(yr.liabEq)}</td>`).join('')}</tr>
+                </table>
+            `;
+
+            document.getElementById('sub-cf').innerHTML = `
+                <table class="statement-table">
+                    ${th}
+                    <tr><td>Net Income</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.ni)}</td>`).join('')}</tr>
+                    <tr><td>(+) D&A</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.depr)}</td>`).join('')}</tr>
+                    <tr><td>(-) Change in Op Assets</td>${m.map((yr,t)=>`<td>${t===0?'-':f(-yr.chgOpAssets)}</td>`).join('')}</tr>
+                    <tr><td>(+) Change in Op Liab</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgOpLiabs)}</td>`).join('')}</tr>
+                    <tr class="row-total"><td>Cash from Ops (CFO)</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.cfo)}</td>`).join('')}</tr>
+                    <tr><td>Cash from Inv (CFI)</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.cfi)}</td>`).join('')}</tr>
+                    <tr class="row-total"><td>Net Change in Cash</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.netCf)}</td>`).join('')}</tr>
+                </table>
+            `;
+
+            document.getElementById('dcfContainer').innerHTML = `
+                <table class="statement-table">
+                    ${th}
+                    <tr><td>EBIT*(1-t) [NOPAT]</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.nopat)}</td>`).join('')}</tr>
+                    <tr><td>(+) D&A</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.depr)}</td>`).join('')}</tr>
+                    <tr><td>(-) CapEx</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.capex)}</td>`).join('')}</tr>
+                    <tr><td>(-) Change in Op Assets</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgOpAssets)}</td>`).join('')}</tr>
+                    <tr><td>(+) Change in Op Liabs</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgOpLiabs)}</td>`).join('')}</tr>
+                    <tr class="row-total"><td>Unlevered FCF</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.ufcf)}</td>`).join('')}</tr>
+                    <tr class="row-total" style="background: rgba(37, 99, 235, 0.05) !important; color:var(--accent);"><td>PV of UFCF</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.pvUfcf)}</td>`).join('')}</tr>
+                </table>
+            `;
+
+            // Render all dashboard visuals
+            renderItemChart();
+            renderYearChart();
+            renderMarginChart();
+            renderWaterfallChart();
+            renderInsights(ev);
+        }
+
+        // Init
+        renderInputs(); runModel();
+    </script>
+</body>
+</html>
