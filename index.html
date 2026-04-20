@@ -196,52 +196,71 @@
         .insight-card p { margin: 0; color: var(--text-muted); line-height: 1.5; }
 
         /* =========================================
-           NATIVE PDF EXPORT / PRINT CSS
+           NATIVE PDF EXPORT / PRINT CSS (FIXED FOR EDGE/CHROME)
            ========================================= */
         @media print {
+            /* 1. CRITICAL FIX: Allow HTML & Body to expand infinitely */
+            html, body {
+                height: auto !important;
+                min-height: 100% !important;
+                width: auto !important;
+                max-width: 100% !important;
+                overflow: visible !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: white !important;
+            }
+
             .sidebar, .toggle-btn, .export-btn, .sub-tabs, .modal-overlay, .tabs { display: none !important; }
-            body, .app-container, .main-content, .workspace {
-                height: auto !important; width: auto !important; max-width: 100% !important; overflow: visible !important; display: block !important;
+            
+            .app-container, .main-content, .workspace {
+                height: auto !important; width: 100% !important; max-width: none !important; 
+                overflow: visible !important; display: block !important;
+                position: static !important;
                 background: white !important; padding: 0 !important; margin: 0 !important;
             }
-            .panel { box-shadow: none !important; border: none !important; break-inside: avoid; margin-bottom: 20px; padding: 10px 0 !important;}
+            
+            * { animation: none !important; transition: none !important; }
+            
+            .panel { box-shadow: none !important; border: 1px solid #e2e8f0 !important; page-break-inside: auto; margin-bottom: 20px; padding: 15px !important;}
             .btn, .btn-danger { display: none !important; }
             input, select { border: none !important; background: transparent !important; appearance: none; -webkit-appearance: none; padding: 0 !important; color: black !important; font-weight: bold;}
             .dynamic-row { border: none !important; background: transparent !important; padding: 0 !important; margin-bottom: 2px !important; }
-            .wacc-box { background: transparent !important; border: 1px solid #ccc !important; break-inside: avoid;}
+            .wacc-box { background: transparent !important; border: 1px solid #ccc !important; page-break-inside: avoid;}
             body { color: black !important; }
             .text-muted { color: #333 !important; }
             
-            /* Table Print Fixes */
-            .table-container { border: none !important; box-shadow: none !important; overflow: visible !important; }
-            .statement-table { width: 100% !important; page-break-inside: auto; }
-            .statement-table tr { page-break-inside: avoid; page-break-after: auto; }
-            .statement-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; position: static !important;}
+            /* Table Print Fixes (Fixes blank pages & truncation) */
+            .table-container { border: none !important; box-shadow: none !important; overflow: visible !important; height: auto !important; display: block !important; margin-bottom: 30px !important;}
+            .statement-table { width: 100% !important; page-break-inside: auto; border-collapse: collapse !important; }
+            .statement-table tr { page-break-inside: avoid !important; page-break-after: auto; }
+            .statement-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; position: static !important; border-bottom: 2px solid #ccc !important;}
             .statement-table th:first-child, .statement-table td:first-child { position: static !important; border-right: none !important; background: transparent !important; }
-            .row-total td { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .row-header td { background-color: white !important; }
+            .row-total td { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-top: 1px solid #999 !important;}
+            .row-header td { background-color: white !important; font-size: 14px !important; border-bottom: 1px solid #000 !important; padding-top: 15px !important;}
             .stage-label { background: transparent !important; color: #64748b !important; border: 1px solid #64748b; }
             
-            .topbar { position: relative; height: auto; padding: 10px 0; border-bottom: 2px solid black; box-shadow: none; display: flex; align-items: flex-end; margin-bottom: 20px; }
-            .chart-wrapper, .svg-chart-container { break-inside: avoid; page-break-inside: avoid; }
+            .topbar { position: relative; height: auto; padding: 10px 0; border-bottom: 2px solid black; box-shadow: none; display: flex; align-items: flex-end; margin-bottom: 20px; page-break-after: avoid; }
+            .chart-wrapper, .svg-chart-container, .h-chart-wrapper { break-inside: avoid; page-break-inside: avoid; }
 
             /* Hide all tab contents by default in print */
-            .tab-content { display: none !important; }
+            .tab-content { display: none !important; height: auto !important; overflow: visible !important; opacity: 1 !important;}
 
-            /* MODE: Financial Statements & DCF */
+            /* MODE 1: Financial Statements & DCF */
             body.print-statements #tab-fin, 
-            body.print-statements #tab-val { display: block !important; page-break-before: always; }
-            body.print-statements #tab-fin { page-break-before: avoid; }
-            body.print-statements #tab-fin .sub-tab-content { display: block !important; margin-bottom: 40px; page-break-inside: avoid; }
+            body.print-statements #tab-val { display: block !important; page-break-inside: auto; }
+            body.print-statements #tab-val { page-break-before: always; }
+            body.print-statements #tab-fin .sub-tab-content { display: block !important; margin-bottom: 40px !important; page-break-inside: auto; opacity: 1 !important;}
+            body.print-statements .panel:not(#tab-val .panel) { display: none !important; }
 
-            /* MODE: Current Active Tab */
-            body.print-current .tab-content.active { display: block !important; }
-            body.print-current .tab-content.active .sub-tab-content { display: block !important; margin-bottom: 40px; page-break-inside: avoid; }
+            /* MODE 2: Current Active Tab */
+            body.print-current .tab-content.active { display: block !important; page-break-inside: auto; }
+            body.print-current .tab-content.active .sub-tab-content { display: block !important; margin-bottom: 40px !important; page-break-inside: auto; opacity: 1 !important;}
 
-            /* MODE: Entire Model */
-            body.print-all .tab-content { display: block !important; page-break-before: always; }
+            /* MODE 3: Entire Model */
+            body.print-all .tab-content { display: block !important; page-break-before: always; page-break-inside: auto;}
             body.print-all .tab-content:first-child { page-break-before: avoid; }
-            body.print-all .sub-tab-content { display: block !important; margin-bottom: 30px; page-break-inside: avoid; }
+            body.print-all .sub-tab-content { display: block !important; margin-bottom: 30px !important; page-break-inside: auto; opacity: 1 !important; }
         }
     </style>
 </head>
@@ -797,7 +816,7 @@
             document.body.className = ''; 
             document.body.classList.add(`print-${content}`);
 
-            // Extended timeout to ensure sub-tabs fully render and expand before print dialog opens
+            // Extended timeout to ensure DOM fully expands before print triggers
             setTimeout(() => {
                 window.print();
                 document.body.className = '';
