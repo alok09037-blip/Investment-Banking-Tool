@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DealCraft v10.0 | Premium Master Model</title>
+    <title>DealCraft v11.0 | AI Copilot Edition</title>
     <style>
         :root {
             --bg-main: #f8fafc;
@@ -195,33 +195,42 @@
         .insight-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-weight: 700; font-size: 14px; }
         .insight-card p { margin: 0; color: var(--text-muted); line-height: 1.5; }
 
+        /* AI COPILOT CHAT UI */
+        .chat-container { display: flex; flex-direction: column; height: 600px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--bg-panel); }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: var(--bg-input); }
+        .chat-bubble { max-width: 85%; padding: 12px 16px; border-radius: 8px; line-height: 1.5; font-size: 14px; word-wrap: break-word;}
+        .chat-user { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 0; }
+        .chat-ai { align-self: flex-start; background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); border-bottom-left-radius: 0; }
+        .chat-ai strong { color: var(--accent); }
+        .chat-ai ul { padding-left: 20px; margin: 8px 0; }
+        .chat-ai li { margin-bottom: 6px; }
+        .chat-input-area { padding: 15px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; gap: 10px; }
+        .chat-input-area input { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-family: inherit; }
+        .chat-input-area input:focus { outline: none; border-color: var(--accent); }
+        .chat-input-area button { padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .chat-input-area button:disabled { background: var(--text-muted); cursor: not-allowed; }
+        .typing-indicator { display: flex; gap: 5px; padding: 10px 15px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; align-self: flex-start; border-bottom-left-radius: 0; align-items: center;}
+        .dot { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: typing 1.4s infinite ease-in-out; }
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
         /* =========================================
            NATIVE PDF EXPORT / PRINT CSS (FIXED FOR EDGE/CHROME)
            ========================================= */
         @media print {
-            /* 1. CRITICAL FIX: Allow HTML & Body to expand infinitely */
             html, body {
-                height: auto !important;
-                min-height: 100% !important;
-                width: auto !important;
-                max-width: 100% !important;
-                overflow: visible !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                background: white !important;
+                height: auto !important; min-height: 100% !important; width: auto !important; max-width: 100% !important;
+                overflow: visible !important; padding: 0 !important; margin: 0 !important; background: white !important;
             }
-
             .sidebar, .toggle-btn, .export-btn, .sub-tabs, .modal-overlay, .tabs { display: none !important; }
-            
             .app-container, .main-content, .workspace {
                 height: auto !important; width: 100% !important; max-width: none !important; 
-                overflow: visible !important; display: block !important;
-                position: static !important;
+                overflow: visible !important; display: block !important; position: static !important;
                 background: white !important; padding: 0 !important; margin: 0 !important;
             }
-            
             * { animation: none !important; transition: none !important; }
-            
             .panel { box-shadow: none !important; border: 1px solid #e2e8f0 !important; page-break-inside: auto; margin-bottom: 20px; padding: 15px !important;}
             .btn, .btn-danger { display: none !important; }
             input, select { border: none !important; background: transparent !important; appearance: none; -webkit-appearance: none; padding: 0 !important; color: black !important; font-weight: bold;}
@@ -229,8 +238,6 @@
             .wacc-box { background: transparent !important; border: 1px solid #ccc !important; page-break-inside: avoid;}
             body { color: black !important; }
             .text-muted { color: #333 !important; }
-            
-            /* Table Print Fixes (Fixes blank pages & truncation) */
             .table-container { border: none !important; box-shadow: none !important; overflow: visible !important; height: auto !important; display: block !important; margin-bottom: 30px !important;}
             .statement-table { width: 100% !important; page-break-inside: auto; border-collapse: collapse !important; }
             .statement-table tr { page-break-inside: avoid !important; page-break-after: auto; }
@@ -239,28 +246,21 @@
             .row-total td { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-top: 1px solid #999 !important;}
             .row-header td { background-color: white !important; font-size: 14px !important; border-bottom: 1px solid #000 !important; padding-top: 15px !important;}
             .stage-label { background: transparent !important; color: #64748b !important; border: 1px solid #64748b; }
-            
             .topbar { position: relative; height: auto; padding: 10px 0; border-bottom: 2px solid black; box-shadow: none; display: flex; align-items: flex-end; margin-bottom: 20px; page-break-after: avoid; }
             .chart-wrapper, .svg-chart-container, .h-chart-wrapper { break-inside: avoid; page-break-inside: avoid; }
-
-            /* Hide all tab contents by default in print */
             .tab-content { display: none !important; height: auto !important; overflow: visible !important; opacity: 1 !important;}
 
-            /* MODE 1: Financial Statements & DCF */
-            body.print-statements #tab-fin, 
-            body.print-statements #tab-val { display: block !important; page-break-inside: auto; }
+            body.print-statements #tab-fin, body.print-statements #tab-val { display: block !important; page-break-inside: auto; }
             body.print-statements #tab-val { page-break-before: always; }
             body.print-statements #tab-fin .sub-tab-content { display: block !important; margin-bottom: 40px !important; page-break-inside: auto; opacity: 1 !important;}
             body.print-statements .panel:not(#tab-val .panel) { display: none !important; }
-
-            /* MODE 2: Current Active Tab */
             body.print-current .tab-content.active { display: block !important; page-break-inside: auto; }
             body.print-current .tab-content.active .sub-tab-content { display: block !important; margin-bottom: 40px !important; page-break-inside: auto; opacity: 1 !important;}
-
-            /* MODE 3: Entire Model */
             body.print-all .tab-content { display: block !important; page-break-before: always; page-break-inside: auto;}
             body.print-all .tab-content:first-child { page-break-before: avoid; }
             body.print-all .sub-tab-content { display: block !important; margin-bottom: 30px !important; page-break-inside: auto; opacity: 1 !important; }
+            
+            #tab-ai { display: none !important; } /* Do not print AI chat */
         }
     </style>
 </head>
@@ -339,11 +339,14 @@
             <button class="tab-btn" onclick="switchTab(event, 'tab-insights')">
                 <span class="tab-icon">🤖</span> <span class="tab-label">AI Analyst Insights</span>
             </button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-ai')" style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px;">
+                <span class="tab-icon" style="color: #60a5fa;">💬</span> <span class="tab-label" style="color: #60a5fa; font-weight: bold;">Chat with AI</span>
+            </button>
             <button class="tab-btn" onclick="switchTab(event, 'tab-curr')">
                 <span class="tab-icon">💱</span> <span class="tab-label">Currency & Settings</span>
             </button>
         </div>
-        <div class="sidebar-footer">v10.0 Premium Edition<br>Confidential</div>
+        <div class="sidebar-footer">v11.0 AI Copilot Edition<br>Confidential</div>
     </nav>
 
     <!-- MAIN CONTENT -->
@@ -649,6 +652,29 @@
                 </div>
             </div>
 
+            <!-- NEW TAB: AI COPILOT CHAT -->
+            <div id="tab-ai" class="tab-content">
+                <div class="panel" style="padding: 0; display: flex; flex-direction: column; height: 600px; max-width: 900px; margin: 0 auto; border: 1px solid var(--accent);">
+                    <h2 style="margin: 0; padding: 15px 20px; background: rgba(37, 99, 235, 0.05); color: var(--accent); border-bottom: 1px solid var(--border);">DealCraft AI Copilot</h2>
+                    
+                    <div id="chatHistory" class="chat-messages">
+                        <div class="chat-bubble chat-ai">
+                            Hi! I am your AI Investment Banking Analyst. I have full visibility into your current financial model parameters, projections, and valuation. <br><br>Ask me questions like:
+                            <ul>
+                                <li><em>"Why is the Enterprise Value negative?"</em></li>
+                                <li><em>"How can I improve the EBITDA margin in Year 5?"</em></li>
+                                <li><em>"Summarize the cash flow profile of this business."</em></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <input type="text" id="aiUserInput" placeholder="Ask a question about your model..." onkeypress="if(event.key === 'Enter') sendToAI()">
+                        <button id="aiSendBtn" onclick="sendToAI()">Send</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- TAB 7: CURRENCY & SETTINGS -->
             <div id="tab-curr" class="tab-content">
                 <div class="panel" style="max-width: 600px;">
@@ -704,6 +730,9 @@
         window.masterMatrix = [];
         window.masterTotalPeriods = 0;
 
+        // --- AI API CONFIG ---
+        const apiKey = ""; // Environment provided API key
+
         // MODAL TOGGLES
         function openResetModal() { document.getElementById('resetModal').classList.add('active'); }
         function closeResetModal() { document.getElementById('resetModal').classList.remove('active'); }
@@ -712,7 +741,7 @@
         function resetModelDefaults() {
             closeResetModal();
 
-            // 1. Wipe dynamic arrays to a blank slate (1 empty row each)
+            // 1. Wipe dynamic arrays to a blank slate
             stages = [{ id: Date.now(), years: 5, growth: 0 }];
             revenues = [{ id: Date.now(), name: "Stream 1", type: 'flat', vol: 0, price: 0, base: 0 }];
             expenses = [{ id: Date.now(), name: "Expense 1", type: 'margin', margin: 0, unitCost: 0, base: 0 }];
@@ -720,68 +749,36 @@
             opLiabs = [];
 
             // 2. Wipe WACC & Capital Structure inputs to 0
-            document.getElementById('rf').value = 0;
-            document.getElementById('beta').value = 0;
-            document.getElementById('erp').value = 0;
-            document.getElementById('d1').value = 0;
-            document.getElementById('p0').value = 1; // Prevent Div/0
-            document.getElementById('dgm_g').value = 0;
+            document.getElementById('rf').value = 0; document.getElementById('beta').value = 0; document.getElementById('erp').value = 0;
+            document.getElementById('d1').value = 0; document.getElementById('p0').value = 1; document.getElementById('dgm_g').value = 0;
             document.getElementById('directKe').value = 0;
             
-            document.getElementById('directKd').value = 0;
-            document.getElementById('kd_irr_i').value = 0;
-            document.getElementById('kd_irr_np').value = 1; // Prevent Div/0
-            document.getElementById('kd_red_i').value = 0;
-            document.getElementById('kd_red_np').value = 1; // Prevent Div/0
-            document.getElementById('kd_red_rv').value = 1;
-            document.getElementById('kd_red_n').value = 1; // Prevent Div/0
+            document.getElementById('directKd').value = 0; document.getElementById('kd_irr_i').value = 0; document.getElementById('kd_irr_np').value = 1;
+            document.getElementById('kd_red_i').value = 0; document.getElementById('kd_red_np').value = 1; document.getElementById('kd_red_rv').value = 1; document.getElementById('kd_red_n').value = 1; 
 
-            document.getElementById('directKp').value = 0;
-            document.getElementById('kp_irr_pd').value = 0;
-            document.getElementById('kp_irr_np').value = 1; // Prevent Div/0
-            document.getElementById('kp_red_pd').value = 0;
-            document.getElementById('kp_red_np').value = 1; // Prevent Div/0
-            document.getElementById('kp_red_rv').value = 1;
-            document.getElementById('kp_red_n').value = 1; // Prevent Div/0
+            document.getElementById('directKp').value = 0; document.getElementById('kp_irr_pd').value = 0; document.getElementById('kp_irr_np').value = 1; 
+            document.getElementById('kp_red_pd').value = 0; document.getElementById('kp_red_np').value = 1; document.getElementById('kp_red_rv').value = 1; document.getElementById('kp_red_n').value = 1; 
 
-            document.getElementById('tax').value = 0;
-            document.getElementById('we').value = 100; // 100% equity default to prevent WACC NaN
-            document.getElementById('wd').value = 0;
-            document.getElementById('wp').value = 0;
+            document.getElementById('tax').value = 0; document.getElementById('we').value = 100; document.getElementById('wd').value = 0; document.getElementById('wp').value = 0;
             
             // 3. Wipe Operation & Balance Sheet Drivers
-            document.getElementById('tgr').value = 0;
-            document.getElementById('cogsType').value = 'margin';
-            document.getElementById('cogsVal').value = 0;
-            document.getElementById('capexPct').value = 0;
-            document.getElementById('deprPct').value = 0;
-            document.getElementById('bCash').value = 0;
-            document.getElementById('bPPE').value = 0;
-            document.getElementById('bDebt').value = 0;
+            document.getElementById('tgr').value = 0; document.getElementById('cogsType').value = 'margin'; document.getElementById('cogsVal').value = 0;
+            document.getElementById('capexPct').value = 0; document.getElementById('deprPct').value = 0;
+            document.getElementById('bCash').value = 0; document.getElementById('bPPE').value = 0; document.getElementById('bDebt').value = 0;
 
             // 4. Wipe Currency
-            document.getElementById('currSymbol').value = '$';
-            document.getElementById('exchRate').value = 1.00;
-            window.currSym = '$';
-            window.exchRate = 1.0;
+            document.getElementById('currSymbol').value = '$'; document.getElementById('exchRate').value = 1.00;
+            window.currSym = '$'; window.exchRate = 1.0;
 
-            // 5. Default to Direct Input methods for a cleaner visual slate
-            document.getElementById('keMethod').value = 'direct';
-            document.getElementById('kdMethod').value = 'direct';
-            document.getElementById('kpMethod').value = 'direct';
+            // 5. Default Methods
+            document.getElementById('keMethod').value = 'direct'; document.getElementById('kdMethod').value = 'direct'; document.getElementById('kpMethod').value = 'direct';
             
-            // 6. Force Full Re-render of DOM and Dashboard
-            toggleMethods();
-            renderInputs();
-            runModel();
+            // 6. Force Full Re-render
+            toggleMethods(); renderInputs(); runModel();
 
             // 7. Explicitly clear charts and insights
             setTimeout(() => {
-                renderItemChart();
-                renderYearChart();
-                renderMarginChart();
-                renderWaterfallChart();
-                renderInsights(0); 
+                renderItemChart(); renderYearChart(); renderMarginChart(); renderWaterfallChart(); renderInsights(0); 
             }, 100);
         }
 
@@ -793,8 +790,7 @@
             const cogsUnitOpt = document.getElementById('cogsUnitOpt');
             if (cogsUnitOpt) cogsUnitOpt.text = `Cost Per Unit (${window.currSym})`;
             
-            renderInputs();
-            runModel();
+            renderInputs(); runModel();
         }
 
         // PDF EXPORT LOGIC
@@ -816,7 +812,6 @@
             document.body.className = ''; 
             document.body.classList.add(`print-${content}`);
 
-            // Extended timeout to ensure DOM fully expands before print triggers
             setTimeout(() => {
                 window.print();
                 document.body.className = '';
@@ -928,26 +923,17 @@
             document.querySelectorAll('.curr-lbl').forEach(el => el.innerText = window.currSym);
         }
 
-        // MUTATORS
         function addStage() { stages.push({ id: Date.now(), years: 5, growth: 5 }); renderInputs(); runModel(); }
         function removeStage(index) { if(stages.length > 1) { stages.splice(index, 1); renderInputs(); runModel(); } }
         function updateStage(index, key, val) { stages[index][key] = parseFloat(val)||0; runModel(); }
 
         function addRev() { revenues.push({ id: Date.now(), name: "New Stream", type: 'flat', vol: 0, price: 0, base: 100 }); renderInputs(); runModel(); }
         function removeRev(index) { revenues.splice(index, 1); renderInputs(); runModel(); }
-        function updateRev(index, key, val) { 
-            revenues[index][key] = key === 'name' || key === 'type' ? val : parseFloat(val)||0; 
-            if(key === 'type') renderInputs(); 
-            runModel(); 
-        }
+        function updateRev(index, key, val) { revenues[index][key] = key === 'name' || key === 'type' ? val : parseFloat(val)||0; if(key === 'type') renderInputs(); runModel(); }
 
         function addOpex() { expenses.push({ id: Date.now(), name: "New Expense", type: 'margin', margin: 5, unitCost: 5, base: 20 }); renderInputs(); runModel(); }
         function removeOpex(index) { expenses.splice(index, 1); renderInputs(); runModel(); }
-        function updateOpex(index, key, val) { 
-            expenses[index][key] = key === 'name' || key === 'type' ? val : parseFloat(val)||0; 
-            if(key === 'type') renderInputs();
-            runModel(); 
-        }
+        function updateOpex(index, key, val) { expenses[index][key] = key === 'name' || key === 'type' ? val : parseFloat(val)||0; if(key === 'type') renderInputs(); runModel(); }
 
         function addAsset() { opAssets.push({ id: Date.now(), name: "New Asset", base: 20, pctRev: 5 }); renderInputs(); runModel(); }
         function removeAsset(index) { opAssets.splice(index, 1); renderInputs(); runModel(); }
@@ -957,7 +943,6 @@
         function removeLiab(index) { opLiabs.splice(index, 1); renderInputs(); runModel(); }
         function updateLiab(index, key, val) { opLiabs[index][key] = key === 'name' ? val : parseFloat(val)||0; runModel(); }
 
-        // NUMBER FORMATTERS
         const f = (num) => {
             const val = (parseFloat(num) || 0) * window.exchRate;
             const str = Math.abs(val).toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
@@ -988,7 +973,6 @@
             document.getElementById('directKpInput').style.display = kpM === 'direct' ? 'block' : 'none';
             document.getElementById('irredeemableKpInputs').style.display = kpM === 'irredeemable' ? 'block' : 'none';
             document.getElementById('redeemableKpInputs').style.display = kpM === 'redeemable' ? 'block' : 'none';
-
             runModel();
         }
 
@@ -998,28 +982,16 @@
         function renderItemChart() {
             const m = window.masterMatrix;
             if (!m || m.length === 0) return;
-            
             const item = document.getElementById('dashItemSelect').value;
             let data = m.map(yr => (yr[item] || 0) * window.exchRate);
-            
-            const maxVal = Math.max(...data, 0);
-            const minVal = Math.min(...data, 0);
+            const maxVal = Math.max(...data, 0); const minVal = Math.min(...data, 0);
             const range = (maxVal - minVal) || 1; 
-            
             const zeroY = (maxVal / range) * 100;
 
             let colsHTML = '';
             for (let t = 0; t < data.length; t++) {
-                const val = data[t];
-                const pct = (Math.abs(val) / range) * 100;
-                
-                let barStyle = '';
-                if (val >= 0) {
-                    barStyle = `height: ${pct}%; bottom: ${100 - zeroY}%;`;
-                } else {
-                    barStyle = `height: ${pct}%; top: ${zeroY}%;`;
-                }
-
+                const val = data[t]; const pct = (Math.abs(val) / range) * 100;
+                let barStyle = val >= 0 ? `height: ${pct}%; bottom: ${100 - zeroY}%;` : `height: ${pct}%; top: ${zeroY}%;`;
                 const strVal = Math.abs(val).toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
                 const displayVal = val < 0 ? `(${window.currSym}${strVal})` : `${window.currSym}${strVal}`;
                 const valColor = val < 0 ? 'var(--danger)' : 'var(--text-main)';
@@ -1032,20 +1004,9 @@
                     </div>
                 `;
             }
-
-            document.getElementById('itemChartContainer').innerHTML = `
-                <div class="chart-wrapper">
-                    <div class="chart-gridline" style="top: 0%;"></div>
-                    <div class="chart-gridline" style="top: 25%;"></div>
-                    <div class="chart-gridline" style="top: 50%;"></div>
-                    <div class="chart-gridline" style="top: 75%;"></div>
-                    <div class="chart-zero-line" style="top: ${zeroY}%;"></div>
-                    ${colsHTML}
-                </div>
-            `;
+            document.getElementById('itemChartContainer').innerHTML = `<div class="chart-wrapper"><div class="chart-gridline" style="top: 0%;"></div><div class="chart-gridline" style="top: 25%;"></div><div class="chart-gridline" style="top: 50%;"></div><div class="chart-gridline" style="top: 75%;"></div><div class="chart-zero-line" style="top: ${zeroY}%;"></div>${colsHTML}</div>`;
         }
 
-        // NEW: SVG MARGIN LINE CHART
         function renderMarginChart() {
             const m = window.masterMatrix;
             if (!m || m.length === 0) return;
@@ -1058,18 +1019,12 @@
                 data.push({ t, gm, ebitda, ni });
             });
 
-            // Find scale
             let allVals = data.flatMap(d => [d.gm, d.ebitda, d.ni]);
-            let maxVal = Math.max(...allVals, 10);
-            let minVal = Math.min(...allVals, 0);
-            
-            // Pad the top a bit
+            let maxVal = Math.max(...allVals, 10); let minVal = Math.min(...allVals, 0);
             maxVal = Math.ceil(maxVal / 10) * 10 + 10;
             if (minVal < 0) minVal = Math.floor(minVal / 10) * 10 - 10;
 
-            const range = maxVal - minVal;
-            const w = 1000; const h = 250;
-
+            const range = maxVal - minVal; const w = 1000; const h = 250;
             const mapY = (val) => h - (((val - minVal) / range) * h);
             const mapX = (t) => (t / (data.length - 1)) * w;
 
@@ -1080,10 +1035,8 @@
             let yLabels = '';
             for(let i=0; i<=4; i++) {
                 let val = maxVal - (range * (i/4));
-                let yPos = (i/4) * h;
-                yLabels += `<div style="position:absolute; right:0; top:${yPos}px; transform:translateY(-50%);">${val.toFixed(0)}%</div>`;
+                yLabels += `<div style="position:absolute; right:0; top:${(i/4) * h}px; transform:translateY(-50%);">${val.toFixed(0)}%</div>`;
             }
-
             let xLabels = data.map(d => `<div style="flex:1; text-align:center;">Yr ${d.t}</div>`).join('');
 
             document.getElementById('marginChartContainer').innerHTML = `
@@ -1094,11 +1047,9 @@
                         <line x1="0" y1="${h*0.5}" x2="${w}" y2="${h*0.5}" stroke="var(--border)" stroke-dasharray="4,4"/>
                         <line x1="0" y1="${h*0.75}" x2="${w}" y2="${h*0.75}" stroke="var(--border)" stroke-dasharray="4,4"/>
                         ${minVal < 0 ? `<line x1="0" y1="${mapY(0)}" x2="${w}" y2="${mapY(0)}" stroke="var(--text-main)" stroke-width="1.5"/>` : ''}
-                        
                         <polyline points="${gmPts}" fill="none" stroke="var(--chart-1)" stroke-width="3" stroke-linejoin="round"/>
                         <polyline points="${ebPts}" fill="none" stroke="var(--chart-2)" stroke-width="3" stroke-linejoin="round"/>
                         <polyline points="${niPts}" fill="none" stroke="var(--chart-4)" stroke-width="3" stroke-linejoin="round"/>
-                        
                         ${data.map(d => `<circle cx="${mapX(d.t)}" cy="${mapY(d.gm)}" r="4" fill="white" stroke="var(--chart-1)" stroke-width="2"/>`).join('')}
                         ${data.map(d => `<circle cx="${mapX(d.t)}" cy="${mapY(d.ebitda)}" r="4" fill="white" stroke="var(--chart-2)" stroke-width="2"/>`).join('')}
                         ${data.map(d => `<circle cx="${mapX(d.t)}" cy="${mapY(d.ni)}" r="4" fill="white" stroke="var(--chart-4)" stroke-width="2"/>`).join('')}
@@ -1108,227 +1059,114 @@
             `;
         }
 
-        // NEW: WATERFALL CHART (UFCF Bridge)
         function renderWaterfallChart() {
             const m = window.masterMatrix;
             if (!m || m.length === 0) return;
-            
             const yrIdx = parseInt(document.getElementById('dashBridgeYearSelect').value) || 0;
-            if(yrIdx === 0 && m.length > 1) { // Default to Yr 1 if Base Yr is selected since it has better flows
-                document.getElementById('dashBridgeYearSelect').value = 1;
-                return renderWaterfallChart();
-            }
+            if(yrIdx === 0 && m.length > 1) { document.getElementById('dashBridgeYearSelect').value = 1; return renderWaterfallChart(); }
             const yr = m[yrIdx];
 
-            let bars = [];
-            let currentY = 0;
-            
-            // 1. EBITDA
-            let ebitda = yr.ebitda * window.exchRate;
-            bars.push({ name: 'EBITDA', val: ebitda, start: 0, end: ebitda, type: 'total' });
-            currentY = ebitda;
-            
-            // 2. Cash Taxes
-            let taxes = -yr.taxExp * window.exchRate;
-            bars.push({ name: 'Cash Taxes', val: taxes, start: currentY, end: currentY + taxes, type: 'neg' });
-            currentY += taxes;
-            
-            // 3. CapEx
-            let capex = -yr.capex * window.exchRate;
-            bars.push({ name: 'CapEx', val: capex, start: currentY, end: currentY + capex, type: 'neg' });
-            currentY += capex;
-            
-            // 4. Chg Op Assets (Outflow if increasing)
-            let chgAst = -yr.chgOpAssets * window.exchRate;
-            bars.push({ name: 'Chg Assets', val: chgAst, start: currentY, end: currentY + chgAst, type: chgAst >= 0 ? 'pos' : 'neg' });
-            currentY += chgAst;
+            let bars = []; let currentY = 0;
+            let ebitda = yr.ebitda * window.exchRate; bars.push({ name: 'EBITDA', val: ebitda, start: 0, end: ebitda, type: 'total' }); currentY = ebitda;
+            let taxes = -yr.taxExp * window.exchRate; bars.push({ name: 'Cash Taxes', val: taxes, start: currentY, end: currentY + taxes, type: 'neg' }); currentY += taxes;
+            let capex = -yr.capex * window.exchRate; bars.push({ name: 'CapEx', val: capex, start: currentY, end: currentY + capex, type: 'neg' }); currentY += capex;
+            let chgAst = -yr.chgOpAssets * window.exchRate; bars.push({ name: 'Chg Assets', val: chgAst, start: currentY, end: currentY + chgAst, type: chgAst >= 0 ? 'pos' : 'neg' }); currentY += chgAst;
+            let chgLiab = yr.chgOpLiabs * window.exchRate; bars.push({ name: 'Chg Liabs', val: chgLiab, start: currentY, end: currentY + chgLiab, type: chgLiab >= 0 ? 'pos' : 'neg' }); currentY += chgLiab;
+            let ufcf = yr.ufcf * window.exchRate; bars.push({ name: 'UFCF', val: ufcf, start: 0, end: ufcf, type: 'total' });
 
-            // 5. Chg Op Liabs (Inflow if increasing)
-            let chgLiab = yr.chgOpLiabs * window.exchRate;
-            bars.push({ name: 'Chg Liabs', val: chgLiab, start: currentY, end: currentY + chgLiab, type: chgLiab >= 0 ? 'pos' : 'neg' });
-            currentY += chgLiab;
-
-            // 6. UFCF
-            let ufcf = yr.ufcf * window.exchRate;
-            bars.push({ name: 'UFCF', val: ufcf, start: 0, end: ufcf, type: 'total' });
-
-            // Calculate Scales
             let allY = bars.flatMap(b => [b.start, b.end]);
-            let maxVal = Math.max(...allY, 0);
-            let minVal = Math.min(...allY, 0);
-            let range = (maxVal - minVal) || 1;
-            const zeroY = (maxVal / range) * 100;
+            let maxVal = Math.max(...allY, 0); let minVal = Math.min(...allY, 0);
+            let range = (maxVal - minVal) || 1; const zeroY = (maxVal / range) * 100;
 
             let colsHTML = '';
             bars.forEach((b, i) => {
-                let topY = Math.max(b.start, b.end);
-                let botY = Math.min(b.start, b.end);
-                
-                let pctTop = (topY / maxVal) * zeroY; 
-                let pctBot = (botY / maxVal) * zeroY;
-                
-                if (maxVal === 0) { pctTop = 0; pctBot = 0; } // fail safe
-                
+                let topY = Math.max(b.start, b.end); let botY = Math.min(b.start, b.end);
                 let heightPct = Math.abs(b.start - b.end) / range * 100;
                 let bottomPct = (botY - minVal) / range * 100;
 
-                let colorClass = '';
-                if (b.type === 'total') colorClass = 'background: var(--accent);';
-                else if (b.type === 'pos') colorClass = 'background: var(--positive);';
-                else colorClass = 'background: var(--danger);';
-
+                let colorClass = b.type === 'total' ? 'background: var(--accent);' : (b.type === 'pos' ? 'background: var(--positive);' : 'background: var(--danger);');
                 const strVal = Math.abs(b.val).toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
                 const displayVal = b.val < 0 ? `(${strVal})` : `${strVal}`;
                 const valColor = b.val < 0 ? 'var(--danger)' : 'var(--text-main)';
-
-                // Connectors to next bar
-                let connectorHTML = '';
-                if (i < bars.length - 1) {
-                    connectorHTML = `<div style="position:absolute; right:-50%; width:100%; top:0; border-top:1px dashed var(--text-muted); z-index:1;"></div>`;
-                }
+                let connectorHTML = i < bars.length - 1 ? `<div style="position:absolute; right:-50%; width:100%; top:0; border-top:1px dashed var(--text-muted); z-index:1;"></div>` : '';
 
                 colsHTML += `
                     <div class="chart-col">
                         <div class="chart-val" style="bottom: calc(${bottomPct + heightPct}% + 5px); color: ${valColor};">${displayVal}</div>
-                        <div style="position: absolute; width: 70%; max-width: 60px; border-radius: 3px; ${colorClass} height: ${heightPct}%; bottom: ${bottomPct}%; z-index:2;">
-                            ${connectorHTML}
-                        </div>
+                        <div style="position: absolute; width: 70%; max-width: 60px; border-radius: 3px; ${colorClass} height: ${heightPct}%; bottom: ${bottomPct}%; z-index:2;">${connectorHTML}</div>
                         <div class="chart-label">${b.name}</div>
                     </div>
                 `;
             });
-
-            document.getElementById('waterfallChartContainer').innerHTML = `
-                <div class="chart-wrapper" style="height: 280px;">
-                    <div class="chart-zero-line" style="top: ${zeroY}%;"></div>
-                    ${colsHTML}
-                </div>
-            `;
+            document.getElementById('waterfallChartContainer').innerHTML = `<div class="chart-wrapper" style="height: 280px;"><div class="chart-zero-line" style="top: ${zeroY}%;"></div>${colsHTML}</div>`;
         }
 
         function renderYearChart() {
             const m = window.masterMatrix;
             if (!m || m.length === 0) return;
-            
             const yrIdx = parseInt(document.getElementById('dashYearSelect').value) || 0;
             const yrData = m[yrIdx];
-
             const colors = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', 'var(--chart-6)'];
 
-            // Revenue Composition
             let totalRev = yrData.totalRev || 0.001; 
             let revHTML = ''; let revLegend = '';
             yrData.revLines.forEach((r, i) => {
-                const w = (r.val / totalRev) * 100;
-                const c = colors[i % colors.length];
+                const w = (r.val / totalRev) * 100; const c = colors[i % colors.length];
                 if (w > 0) revHTML += `<div class="h-chart-segment" style="width: ${w}%; background: ${c};" title="${r.name}: ${w.toFixed(1)}%">${w > 5 ? w.toFixed(1) + '%' : ''}</div>`;
                 revLegend += `<div class="legend-item"><div class="legend-color" style="background: ${c};"></div>${r.name} (${window.currSym}${(r.val * window.exchRate).toFixed(1)}M)</div>`;
             });
+            document.getElementById('yearRevChart').innerHTML = `<div class="h-chart-wrapper"><div class="h-chart-bar">${revHTML}</div><div class="h-chart-legend">${revLegend}</div></div>`;
 
-            document.getElementById('yearRevChart').innerHTML = `
-                <div class="h-chart-wrapper">
-                    <div class="h-chart-bar">${revHTML}</div>
-                    <div class="h-chart-legend">${revLegend}</div>
-                </div>
-            `;
-
-            // Opex Composition
             let totalOpex = yrData.totalOpex + yrData.cogs + yrData.depr || 0.001;
             let expHTML = ''; let expLegend = ''; let expIndex = 0;
-
             const addExpSeg = (name, val) => {
                 if (val <= 0) return;
-                const w = (val / totalOpex) * 100;
-                const c = colors[expIndex % colors.length];
+                const w = (val / totalOpex) * 100; const c = colors[expIndex % colors.length];
                 expHTML += `<div class="h-chart-segment" style="width: ${w}%; background: ${c};" title="${name}: ${w.toFixed(1)}%">${w > 5 ? w.toFixed(1) + '%' : ''}</div>`;
                 expLegend += `<div class="legend-item"><div class="legend-color" style="background: ${c};"></div>${name} (${window.currSym}${(val * window.exchRate).toFixed(1)}M)</div>`;
                 expIndex++;
             };
-
-            addExpSeg('COGS', yrData.cogs);
-            yrData.expLines.forEach(e => addExpSeg(e.name, e.val));
-            addExpSeg('D&A', yrData.depr);
-
-            document.getElementById('yearExpChart').innerHTML = `
-                <div class="h-chart-wrapper">
-                    <div class="h-chart-bar">${expHTML}</div>
-                    <div class="h-chart-legend">${expLegend}</div>
-                </div>
-            `;
+            addExpSeg('COGS', yrData.cogs); yrData.expLines.forEach(e => addExpSeg(e.name, e.val)); addExpSeg('D&A', yrData.depr);
+            document.getElementById('yearExpChart').innerHTML = `<div class="h-chart-wrapper"><div class="h-chart-bar">${expHTML}</div><div class="h-chart-legend">${expLegend}</div></div>`;
         }
 
-        // NEW: AUTOMATED INSIGHTS ENGINE (Deeply Item-Specific)
         function renderInsights(ev) {
             const m = window.masterMatrix;
             if (!m || m.length <= 1) return;
 
-            let html = '';
-            const t0 = m[0];
-            const t1 = m[1];
-            const tN = m[m.length - 1];
-            const totalPeriods = m.length - 1;
+            let html = ''; const t0 = m[0]; const t1 = m[1]; const tN = m[m.length - 1]; const totalPeriods = m.length - 1;
 
-            // 1. Top-Line Growth
             const cagr = t0.totalRev > 0 ? (Math.pow(tN.totalRev / t0.totalRev, 1 / totalPeriods) - 1) * 100 : 0;
-            if (cagr > 25) {
-                html += `<div class="insight-card warning"><div class="insight-header">🚀 Aggressive Growth Curve</div><p>Total Revenue scales from <strong>${cF(t0.totalRev)}</strong> to <strong>${cF(tN.totalRev)}</strong> (CAGR: ${cagr.toFixed(1)}%). Ensure the Total Addressable Market (TAM) and operating capacity can support this hyper-growth without breaking down.</p></div>`;
-            } else if (cagr > 0) {
-                html += `<div class="insight-card success"><div class="insight-header">📈 Steady, Defensible Growth</div><p>Revenue grows healthily from <strong>${cF(t0.totalRev)}</strong> to <strong>${cF(tN.totalRev)}</strong> (CAGR: ${cagr.toFixed(1)}%). This indicates a stable trajectory suitable for standard discount rates.</p></div>`;
-            } else {
-                html += `<div class="insight-card warning"><div class="insight-header">📉 Flat or Declining Revenue</div><p>Revenue shifts from <strong>${cF(t0.totalRev)}</strong> to <strong>${cF(tN.totalRev)}</strong> (CAGR: ${cagr.toFixed(1)}%). Your valuation is entirely dependent on cost-cutting, extreme margin efficiency, and terminal value extraction.</p></div>`;
-            }
+            if (cagr > 25) html += `<div class="insight-card warning"><div class="insight-header">🚀 Aggressive Growth Curve</div><p>Total Revenue scales from <strong>${cF(t0.totalRev)}</strong> to <strong>${cF(tN.totalRev)}</strong> (CAGR: ${cagr.toFixed(1)}%). Ensure the Total Addressable Market (TAM) and operating capacity can support this hyper-growth without breaking down.</p></div>`;
+            else if (cagr > 0) html += `<div class="insight-card success"><div class="insight-header">📈 Steady, Defensible Growth</div><p>Revenue grows healthily from <strong>${cF(t0.totalRev)}</strong> to <strong>${cF(tN.totalRev)}</strong> (CAGR: ${cagr.toFixed(1)}%). This indicates a stable trajectory suitable for standard discount rates.</p></div>`;
+            else html += `<div class="insight-card warning"><div class="insight-header">📉 Flat or Declining Revenue</div><p>Revenue shifts from <strong>${cF(t0.totalRev)}</strong> to <strong>${cF(tN.totalRev)}</strong> (CAGR: ${cagr.toFixed(1)}%). Your valuation is entirely dependent on cost-cutting, extreme margin efficiency, and terminal value extraction.</p></div>`;
 
-            // 2. Revenue Stream Concentration (Item-Specific)
             let maxStream = { name: '', val: 0 };
             tN.revLines.forEach(r => { if (r.val > maxStream.val) maxStream = r; });
             const concentration = tN.totalRev > 0 ? (maxStream.val / tN.totalRev) * 100 : 0;
-            
-            if (concentration >= 70 && tN.revLines.length > 1) {
-                html += `<div class="insight-card info"><div class="insight-header">🎯 High Revenue Concentration</div><p>By Year ${totalPeriods}, your largest stream, <strong>"${maxStream.name}"</strong>, drives <strong>${concentration.toFixed(1)}%</strong> of the total top-line (${cF(maxStream.val)}). High dependence on a single product/service increases systemic risk.</p></div>`;
-            } else if (tN.revLines.length > 1) {
-                html += `<div class="insight-card success"><div class="insight-header">🔀 Diversified Revenue Mix</div><p>By Year ${totalPeriods}, your largest stream (<strong>"${maxStream.name}"</strong>) is only <strong>${concentration.toFixed(1)}%</strong> of revenue. The business model shows strong diversification across multiple channels.</p></div>`;
-            }
+            if (concentration >= 70 && tN.revLines.length > 1) html += `<div class="insight-card info"><div class="insight-header">🎯 High Revenue Concentration</div><p>By Year ${totalPeriods}, your largest stream, <strong>"${maxStream.name}"</strong>, drives <strong>${concentration.toFixed(1)}%</strong> of the total top-line (${cF(maxStream.val)}). High dependence on a single product/service increases systemic risk.</p></div>`;
+            else if (tN.revLines.length > 1) html += `<div class="insight-card success"><div class="insight-header">🔀 Diversified Revenue Mix</div><p>By Year ${totalPeriods}, your largest stream (<strong>"${maxStream.name}"</strong>) is only <strong>${concentration.toFixed(1)}%</strong> of revenue. The business model shows strong diversification across multiple channels.</p></div>`;
 
-            // 3. Gross Margin Trend (Item-Specific COGS Analysis)
-            const gm0 = t0.totalRev > 0 ? (t0.gp / t0.totalRev) * 100 : 0;
-            const gmN = tN.totalRev > 0 ? (tN.gp / tN.totalRev) * 100 : 0;
-            const gmDelta = gmN - gm0;
+            const gm0 = t0.totalRev > 0 ? (t0.gp / t0.totalRev) * 100 : 0; const gmN = tN.totalRev > 0 ? (tN.gp / tN.totalRev) * 100 : 0; const gmDelta = gmN - gm0;
+            if (gmDelta > 2) html += `<div class="insight-card success"><div class="insight-header">🔼 Gross Margin Expansion</div><p>Gross margin improves from <strong>${gm0.toFixed(1)}%</strong> in Year 0 to <strong>${gmN.toFixed(1)}%</strong> in Year ${totalPeriods}. The model projects economies of scale and strong pricing power over direct costs.</p></div>`;
+            else if (gmDelta < -2) html += `<div class="insight-card warning"><div class="insight-header">🔽 Gross Margin Compression</div><p>Gross margin decays from <strong>${gm0.toFixed(1)}%</strong> to <strong>${gmN.toFixed(1)}%</strong>. Ensure this margin sacrifice is driving enough absolute volume (Units x Price) to generate meaningful EBITDA.</p></div>`;
+            else html += `<div class="insight-card info"><div class="insight-header">⚖️ Stable Unit Economics</div><p>Gross margins hold steady at roughly <strong>${gmN.toFixed(1)}%</strong> over the forecast. Costs scale perfectly in tandem with revenue streams.</p></div>`;
 
-            if (gmDelta > 2) {
-                html += `<div class="insight-card success"><div class="insight-header">🔼 Gross Margin Expansion</div><p>Gross margin improves from <strong>${gm0.toFixed(1)}%</strong> in Year 0 to <strong>${gmN.toFixed(1)}%</strong> in Year ${totalPeriods}. The model projects economies of scale and strong pricing power over direct costs.</p></div>`;
-            } else if (gmDelta < -2) {
-                html += `<div class="insight-card warning"><div class="insight-header">🔽 Gross Margin Compression</div><p>Gross margin decays from <strong>${gm0.toFixed(1)}%</strong> to <strong>${gmN.toFixed(1)}%</strong>. Ensure this margin sacrifice is driving enough absolute volume (Units x Price) to generate meaningful EBITDA.</p></div>`;
-            } else {
-                html += `<div class="insight-card info"><div class="insight-header">⚖️ Stable Unit Economics</div><p>Gross margins hold steady at roughly <strong>${gmN.toFixed(1)}%</strong> over the forecast. Costs scale perfectly in tandem with revenue streams.</p></div>`;
-            }
-
-            // 4. Total Cash Flow Profile (Operations + Investing)
             let minCash = Math.min(...m.map(yr => yr.cash));
-            let totalCFO = m.reduce((acc, yr) => acc + yr.cfo, 0) - t0.cfo; // Exclude base year stat
+            let totalCFO = m.reduce((acc, yr) => acc + yr.cfo, 0) - t0.cfo; 
             let totalCFI = m.reduce((acc, yr) => acc + yr.cfi, 0) - t0.cfi;
-            
-            if (minCash < 0) {
-                html += `<div class="insight-card warning"><div class="insight-header">🚨 Operational Insolvency Risk</div><p>The company burns through cash reserves, hitting a deficit of <strong>${cF(minCash)}</strong>. Immediate capital injection (debt/equity) or CapEx/Working Capital optimization is required.</p></div>`;
-            } else if (totalCFO + totalCFI > 0) {
-                html += `<div class="insight-card success"><div class="insight-header">💵 Structurally Cash Generative</div><p>Across the projection, operations generate more cash than Capital Expenditures consume. The lowest cash point hits a safe <strong>${cF(minCash)}</strong>.</p></div>`;
-            } else {
-                html += `<div class="insight-card warning"><div class="insight-header">🔥 High Cash Burn Profile</div><p>Operations and CapEx consume more cash than generated. The business survives strictly because of the initial Year 0 buffer (<strong>${cF(t0.cash)}</strong>).</p></div>`;
-            }
+            if (minCash < 0) html += `<div class="insight-card warning"><div class="insight-header">🚨 Operational Insolvency Risk</div><p>The company burns through cash reserves, hitting a deficit of <strong>${cF(minCash)}</strong>. Immediate capital injection (debt/equity) or CapEx/Working Capital optimization is required.</p></div>`;
+            else if (totalCFO + totalCFI > 0) html += `<div class="insight-card success"><div class="insight-header">💵 Structurally Cash Generative</div><p>Across the projection, operations generate more cash than Capital Expenditures consume. The lowest cash point hits a safe <strong>${cF(minCash)}</strong>.</p></div>`;
+            else html += `<div class="insight-card warning"><div class="insight-header">🔥 High Cash Burn Profile</div><p>Operations and CapEx consume more cash than generated. The business survives strictly because of the initial Year 0 buffer (<strong>${cF(t0.cash)}</strong>).</p></div>`;
 
-            // 5. Valuation Multiple Sanity Check
             if (ev > 0 && t1.ebitda > 0) {
-                const entryMultiple = ev / t1.ebitda;
-                if (entryMultiple > 18) {
-                    html += `<div class="insight-card warning"><div class="insight-header">🔮 Rich Valuation Multiple</div><p>The Enterprise Value implies a Yr 1 EV/EBITDA multiple of <strong>${entryMultiple.toFixed(1)}x</strong>. This premium requires flawless execution to justify. Check if your Terminal Growth Rate (${(parseFloat(document.getElementById('tgr').value)||0).toFixed(1)}%) is artificially inflating the TV.</p></div>`;
-                } else if (entryMultiple < 5) {
-                    html += `<div class="insight-card info"><div class="insight-header">🏷️ Distressed / Value Asset</div><p>Implied Yr 1 EV/EBITDA is only <strong>${entryMultiple.toFixed(1)}x</strong>. This usually signals a distressed asset, heavy debt loads, or ultra-conservative discount rates.</p></div>`;
-                } else {
-                    html += `<div class="insight-card success"><div class="insight-header">✅ Market-Clearing Valuation</div><p>Implied Yr 1 EV/EBITDA is <strong>${entryMultiple.toFixed(1)}x</strong>, aligning perfectly with healthy, mid-market corporate valuations.</p></div>`;
-                }
+                const entryMultiple = ev / (t1.ebitda * window.exchRate);
+                if (entryMultiple > 18) html += `<div class="insight-card warning"><div class="insight-header">🔮 Rich Valuation Multiple</div><p>The Enterprise Value implies a Yr 1 EV/EBITDA multiple of <strong>${entryMultiple.toFixed(1)}x</strong>. This premium requires flawless execution to justify. Check if your Terminal Growth Rate (${(parseFloat(document.getElementById('tgr').value)||0).toFixed(1)}%) is artificially inflating the TV.</p></div>`;
+                else if (entryMultiple < 5) html += `<div class="insight-card info"><div class="insight-header">🏷️ Distressed / Value Asset</div><p>Implied Yr 1 EV/EBITDA is only <strong>${entryMultiple.toFixed(1)}x</strong>. This usually signals a distressed asset, heavy debt loads, or ultra-conservative discount rates.</p></div>`;
+                else html += `<div class="insight-card success"><div class="insight-header">✅ Market-Clearing Valuation</div><p>Implied Yr 1 EV/EBITDA is <strong>${entryMultiple.toFixed(1)}x</strong>, aligning perfectly with healthy, mid-market corporate valuations.</p></div>`;
             } else if (ev <= 0) {
                  html += `<div class="insight-card warning"><div class="insight-header">❌ Invalid Valuation Math</div><p>The DCF failed. Check if your WACC (${document.getElementById('dashWacc').innerText}) is lower than your Terminal Growth Rate, or if the business never achieves positive cash flow.</p></div>`;
             }
-
             document.getElementById('insightsContainer').innerHTML = html;
         }
 
@@ -1336,31 +1174,26 @@
         function runModel() {
             const tax = parseFloat(document.getElementById('tax').value)/100 || 0;
 
-            // WACC Calc
             let ke; const keM = document.getElementById('keMethod').value;
-            if (keM === 'capm') {
-                ke = (parseFloat(document.getElementById('rf').value)/100) + (parseFloat(document.getElementById('beta').value) * (parseFloat(document.getElementById('erp').value)/100));
-            } else if (keM === 'dgm') {
-                ke = (parseFloat(document.getElementById('d1').value) / parseFloat(document.getElementById('p0').value)) + (parseFloat(document.getElementById('dgm_g').value)/100);
-            } else { ke = parseFloat(document.getElementById('directKe').value)/100; }
+            if (keM === 'capm') ke = (parseFloat(document.getElementById('rf').value)/100) + (parseFloat(document.getElementById('beta').value) * (parseFloat(document.getElementById('erp').value)/100));
+            else if (keM === 'dgm') ke = (parseFloat(document.getElementById('d1').value) / parseFloat(document.getElementById('p0').value)) + (parseFloat(document.getElementById('dgm_g').value)/100);
+            else ke = parseFloat(document.getElementById('directKe').value)/100; 
             document.getElementById('outKe').innerHTML = (ke * 100).toFixed(2) + '%';
             
             let kd; const kdM = document.getElementById('kdMethod').value;
-            if (kdM === 'irredeemable') {
-                kd = parseFloat(document.getElementById('kd_irr_i').value) / parseFloat(document.getElementById('kd_irr_np').value); 
-            } else if (kdM === 'redeemable') {
+            if (kdM === 'irredeemable') kd = parseFloat(document.getElementById('kd_irr_i').value) / parseFloat(document.getElementById('kd_irr_np').value); 
+            else if (kdM === 'redeemable') {
                 const i = parseFloat(document.getElementById('kd_red_i').value), np = parseFloat(document.getElementById('kd_red_np').value), rv = parseFloat(document.getElementById('kd_red_rv').value), n = parseFloat(document.getElementById('kd_red_n').value);
                 kd = (i + ((rv - np) / n)) / ((rv + np) / 2);
-            } else { kd = parseFloat(document.getElementById('directKd').value)/100; }
+            } else kd = parseFloat(document.getElementById('directKd').value)/100; 
             document.getElementById('outKd').innerHTML = (kd * 100).toFixed(2) + '% (Pre-Tax)';
 
             let kp; const kpM = document.getElementById('kpMethod').value;
-            if (kpM === 'irredeemable') {
-                kp = parseFloat(document.getElementById('kp_irr_pd').value) / parseFloat(document.getElementById('kp_irr_np').value);
-            } else if (kpM === 'redeemable') {
+            if (kpM === 'irredeemable') kp = parseFloat(document.getElementById('kp_irr_pd').value) / parseFloat(document.getElementById('kp_irr_np').value);
+            else if (kpM === 'redeemable') {
                 const pd = parseFloat(document.getElementById('kp_red_pd').value), np = parseFloat(document.getElementById('kp_red_np').value), rv = parseFloat(document.getElementById('kp_red_rv').value), n = parseFloat(document.getElementById('kp_red_n').value);
                 kp = (pd + ((rv - np) / n)) / ((rv + np) / 2);
-            } else { kp = parseFloat(document.getElementById('directKp').value)/100; }
+            } else kp = parseFloat(document.getElementById('directKp').value)/100; 
             document.getElementById('outKp').innerHTML = (kp * 100).toFixed(2) + '%';
             
             let we = parseFloat(document.getElementById('we').value)/100, wd = parseFloat(document.getElementById('wd').value)/100, wp = parseFloat(document.getElementById('wp').value)/100;
@@ -1370,7 +1203,6 @@
             const wacc = (we * ke) + (wd * kd * (1 - tax)) + (wp * kp);
             document.getElementById('dashWacc').innerHTML = (wacc * 100).toFixed(2) + '%';
 
-            // Horizon Mapping
             let yearMap = [], totalPeriods = 0, currentStage = 1;
             stages.forEach((s) => {
                 for(let i=0; i<s.years; i++) { totalPeriods++; yearMap[totalPeriods] = { growth: s.growth / 100, stageNum: currentStage }; }
@@ -1382,11 +1214,9 @@
             const capexPct = parseFloat(document.getElementById('capexPct').value)/100, deprPct = parseFloat(document.getElementById('deprPct').value)/100;
             const bCash = parseFloat(document.getElementById('bCash').value), bPPE = parseFloat(document.getElementById('bPPE').value), bDebt = parseFloat(document.getElementById('bDebt').value);
 
-            // Matrix Calc
             let m = []; for(let t=0; t<=totalPeriods; t++) m.push({ revLines: [], expLines: [], assetLines: [], liabLines: [] });
 
             for(let t=0; t<=totalPeriods; t++) {
-                
                 let totalRev = 0; let totalVol = 0;
                 revenues.forEach((r, i) => {
                     let val = 0; let vol = 0;
@@ -1397,15 +1227,14 @@
                         let prevVol = m[t-1].revLines[i].vol; let prevVal = m[t-1].revLines[i].val;
                         vol = prevVol * (1 + yearMap[t].growth); val = prevVal * (1 + yearMap[t].growth); 
                     }
-                    m[t].revLines.push({ name: r.name, val: val, vol: vol });
-                    totalRev += val; totalVol += vol;
+                    m[t].revLines.push({ name: r.name, val: val, vol: vol }); totalRev += val; totalVol += vol;
                 });
                 m[t].totalRev = totalRev; m[t].totalVol = totalVol;
 
                 const cogsType = document.getElementById('cogsType').value;
                 const cogsVal = parseFloat(document.getElementById('cogsVal').value) || 0;
-                if (cogsType === 'margin') { m[t].cogs = totalRev * (cogsVal / 100); } 
-                else { m[t].cogs = totalVol * cogsVal; }
+                if (cogsType === 'margin') m[t].cogs = totalRev * (cogsVal / 100); 
+                else m[t].cogs = totalVol * cogsVal; 
                 m[t].gp = totalRev - m[t].cogs;
 
                 let totalOpex = 0;
@@ -1453,13 +1282,9 @@
                 m[t].pvUfcf = t===0 ? 0 : m[t].ufcf / Math.pow(1 + wacc, t);
             }
 
-            // GLOBAL STORE FOR DASHBOARD
-            window.masterMatrix = m;
-            window.masterTotalPeriods = totalPeriods;
+            window.masterMatrix = m; window.masterTotalPeriods = totalPeriods;
 
-            // DCF MATH
-            let sumPv = 0; 
-            for(let i=1; i<=totalPeriods; i++) sumPv += m[i].pvUfcf;
+            let sumPv = 0; for(let i=1; i<=totalPeriods; i++) sumPv += m[i].pvUfcf;
             let tv = 0; let pvTv = 0; let tvError = false;
 
             if (wacc > tgr) {
@@ -1469,29 +1294,20 @@
 
             let ev = tvError ? sumPv : sumPv + pvTv;
 
-            // DASHBOARD DROPDOWN UPDATE
             let yrSelect = document.getElementById('dashYearSelect');
             let wfSelect = document.getElementById('dashBridgeYearSelect');
             if (yrSelect) {
                 const optionsHTML = m.map((_, i) => `<option value="${i}">Year ${i} ${i===0?'(Base)':''}</option>`).join('');
-                
-                const curYr = yrSelect.value;
-                yrSelect.innerHTML = optionsHTML;
-                if (curYr && curYr <= totalPeriods) yrSelect.value = curYr;
-
-                const curWf = wfSelect.value;
-                wfSelect.innerHTML = optionsHTML;
-                if (curWf && curWf <= totalPeriods) wfSelect.value = curWf;
+                const curYr = yrSelect.value; yrSelect.innerHTML = optionsHTML; if (curYr && curYr <= totalPeriods) yrSelect.value = curYr;
+                const curWf = wfSelect.value; wfSelect.innerHTML = optionsHTML; if (curWf && curWf <= totalPeriods) wfSelect.value = curWf;
             }
 
-            // OUTPUT UPDATES 
             document.getElementById('dashEV').innerHTML = tvError ? `<span class="val-negative" style="font-size:12px;">WACC Error</span>` : cF(ev);
             document.getElementById('outPvUfcf').innerHTML = cF(sumPv);
             document.getElementById('outTv').innerHTML = tvError ? `<span class="val-negative" style="font-size:12px;">WACC must be > TGR</span>` : cF(tv);
             document.getElementById('outPvTv').innerHTML = tvError ? `<span class="val-negative" style="font-size:12px;">WACC must be > TGR</span>` : cF(pvTv);
             document.getElementById('outEvFinal').innerHTML = tvError ? `<span class="val-negative" style="font-size:14px;">Review Assumptions</span>` : cF(ev);
 
-            // HTML TABLE BUILDER
             const th = `<tr><th>Line Item (${window.currSym}M)</th><th>Yr 0<br><span class="stage-label" style="background:#64748b;">Base</span></th>` + 
                 m.slice(1).map((_, idx) => { let t = idx + 1; return `<th>Yr ${t}<br><span class="stage-label">Stage ${yearMap[t].stageNum} (${(yearMap[t].growth*100).toFixed(0)}%)</span></th>`; }).join('') + `</tr>`;
             
@@ -1501,69 +1317,138 @@
             let liabRows = opLiabs.map((l, i) => `<tr><td style="padding-left:20px;">${l.name}</td>` + m.map(yr => `<td>${f(yr.liabLines[i].val)}</td>`).join('') + `</tr>`).join('');
 
             document.getElementById('sub-pl').innerHTML = `
-                <table class="statement-table">
-                    ${th}
-                    ${revRows}
-                    <tr class="row-total"><td>Total Revenue</td>${m.map(yr=>`<td>${f(yr.totalRev)}</td>`).join('')}</tr>
-                    <tr><td>(-) COGS</td>${m.map(yr=>`<td>${f(yr.cogs)}</td>`).join('')}</tr>
-                    <tr class="row-total"><td>Gross Profit</td>${m.map(yr=>`<td>${f(yr.gp)}</td>`).join('')}</tr>
-                    ${expRows}
-                    <tr class="row-total"><td>EBITDA</td>${m.map(yr=>`<td>${f(yr.ebitda)}</td>`).join('')}</tr>
-                    <tr><td>(-) D&A</td>${m.map(yr=>`<td>${f(yr.depr)}</td>`).join('')}</tr>
-                    <tr class="row-total"><td>EBIT</td>${m.map(yr=>`<td>${f(yr.ebit)}</td>`).join('')}</tr>
-                    <tr><td>(-) Interest Exp (Book)</td>${m.map(yr=>`<td>${f(yr.interest)}</td>`).join('')}</tr>
-                    <tr><td>(-) Taxes</td>${m.map(yr=>`<td>${f(yr.taxExp)}</td>`).join('')}</tr>
-                    <tr class="row-total" style="color:var(--accent);"><td>Net Income</td>${m.map(yr=>`<td>${f(yr.ni)}</td>`).join('')}</tr>
-                </table>
-            `;
+                <table class="statement-table">${th}${revRows}<tr class="row-total"><td>Total Revenue</td>${m.map(yr=>`<td>${f(yr.totalRev)}</td>`).join('')}</tr>
+                <tr><td>(-) COGS</td>${m.map(yr=>`<td>${f(yr.cogs)}</td>`).join('')}</tr><tr class="row-total"><td>Gross Profit</td>${m.map(yr=>`<td>${f(yr.gp)}</td>`).join('')}</tr>${expRows}
+                <tr class="row-total"><td>EBITDA</td>${m.map(yr=>`<td>${f(yr.ebitda)}</td>`).join('')}</tr><tr><td>(-) D&A</td>${m.map(yr=>`<td>${f(yr.depr)}</td>`).join('')}</tr>
+                <tr class="row-total"><td>EBIT</td>${m.map(yr=>`<td>${f(yr.ebit)}</td>`).join('')}</tr><tr><td>(-) Interest Exp (Book)</td>${m.map(yr=>`<td>${f(yr.interest)}</td>`).join('')}</tr>
+                <tr><td>(-) Taxes</td>${m.map(yr=>`<td>${f(yr.taxExp)}</td>`).join('')}</tr><tr class="row-total" style="color:var(--accent);"><td>Net Income</td>${m.map(yr=>`<td>${f(yr.ni)}</td>`).join('')}</tr></table>`;
 
             document.getElementById('sub-bal').innerHTML = `
-                <table class="statement-table">
-                    ${th}
-                    <tr><td>Cash & Equivalents</td>${m.map(yr=>`<td>${f(yr.cash)}</td>`).join('')}</tr>
-                    ${assetRows}
-                    <tr><td>PP&E (Net)</td>${m.map(yr=>`<td>${f(yr.ppe)}</td>`).join('')}</tr>
-                    <tr class="row-total"><td>Total Assets</td>${m.map(yr=>`<td>${f(yr.assets)}</td>`).join('')}</tr>
-                    ${liabRows}
-                    <tr><td>Total Debt</td>${m.map(yr=>`<td>${f(yr.debt)}</td>`).join('')}</tr>
-                    <tr><td>Paid-In Equity</td>${m.map(yr=>`<td>${f(yr.equity)}</td>`).join('')}</tr>
-                    <tr><td>Retained Earnings</td>${m.map(yr=>`<td>${f(yr.re)}</td>`).join('')}</tr>
-                    <tr class="row-total"><td>Total L&E</td>${m.map(yr=>`<td>${f(yr.liabEq)}</td>`).join('')}</tr>
-                </table>
-            `;
+                <table class="statement-table">${th}<tr><td>Cash & Equivalents</td>${m.map(yr=>`<td>${f(yr.cash)}</td>`).join('')}</tr>${assetRows}
+                <tr><td>PP&E (Net)</td>${m.map(yr=>`<td>${f(yr.ppe)}</td>`).join('')}</tr><tr class="row-total"><td>Total Assets</td>${m.map(yr=>`<td>${f(yr.assets)}</td>`).join('')}</tr>${liabRows}
+                <tr><td>Total Debt</td>${m.map(yr=>`<td>${f(yr.debt)}</td>`).join('')}</tr><tr><td>Paid-In Equity</td>${m.map(yr=>`<td>${f(yr.equity)}</td>`).join('')}</tr>
+                <tr><td>Retained Earnings</td>${m.map(yr=>`<td>${f(yr.re)}</td>`).join('')}</tr><tr class="row-total"><td>Total L&E</td>${m.map(yr=>`<td>${f(yr.liabEq)}</td>`).join('')}</tr></table>`;
 
             document.getElementById('sub-cf').innerHTML = `
-                <table class="statement-table">
-                    ${th}
-                    <tr><td>Net Income</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.ni)}</td>`).join('')}</tr>
-                    <tr><td>(+) D&A</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.depr)}</td>`).join('')}</tr>
-                    <tr><td>(-) Change in Op Assets</td>${m.map((yr,t)=>`<td>${t===0?'-':f(-yr.chgOpAssets)}</td>`).join('')}</tr>
-                    <tr><td>(+) Change in Op Liab</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgOpLiabs)}</td>`).join('')}</tr>
-                    <tr class="row-total"><td>Cash from Ops (CFO)</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.cfo)}</td>`).join('')}</tr>
-                    <tr><td>Cash from Inv (CFI)</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.cfi)}</td>`).join('')}</tr>
-                    <tr class="row-total"><td>Net Change in Cash</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.netCf)}</td>`).join('')}</tr>
-                </table>
-            `;
+                <table class="statement-table">${th}<tr><td>Net Income</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.ni)}</td>`).join('')}</tr><tr><td>(+) D&A</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.depr)}</td>`).join('')}</tr>
+                <tr><td>(-) Change in Op Assets</td>${m.map((yr,t)=>`<td>${t===0?'-':f(-yr.chgOpAssets)}</td>`).join('')}</tr><tr><td>(+) Change in Op Liab</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgOpLiabs)}</td>`).join('')}</tr>
+                <tr class="row-total"><td>Cash from Ops (CFO)</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.cfo)}</td>`).join('')}</tr><tr><td>Cash from Inv (CFI)</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.cfi)}</td>`).join('')}</tr>
+                <tr class="row-total"><td>Net Change in Cash</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.netCf)}</td>`).join('')}</tr></table>`;
 
             document.getElementById('dcfContainer').innerHTML = `
-                <table class="statement-table">
-                    ${th}
-                    <tr><td>EBIT*(1-t) [NOPAT]</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.nopat)}</td>`).join('')}</tr>
-                    <tr><td>(+) D&A</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.depr)}</td>`).join('')}</tr>
-                    <tr><td>(-) CapEx</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.capex)}</td>`).join('')}</tr>
-                    <tr><td>(-) Change in Op Assets</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgOpAssets)}</td>`).join('')}</tr>
-                    <tr><td>(+) Change in Op Liabs</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgOpLiabs)}</td>`).join('')}</tr>
-                    <tr class="row-total"><td>Unlevered FCF</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.ufcf)}</td>`).join('')}</tr>
-                    <tr class="row-total" style="background: rgba(37, 99, 235, 0.05) !important; color:var(--accent);"><td>PV of UFCF</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.pvUfcf)}</td>`).join('')}</tr>
-                </table>
-            `;
+                <table class="statement-table">${th}<tr><td>EBIT*(1-t) [NOPAT]</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.nopat)}</td>`).join('')}</tr>
+                <tr><td>(+) D&A</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.depr)}</td>`).join('')}</tr><tr><td>(-) CapEx</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.capex)}</td>`).join('')}</tr>
+                <tr><td>(-) Change in Op Assets</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgOpAssets)}</td>`).join('')}</tr><tr><td>(+) Change in Op Liabs</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgOpLiabs)}</td>`).join('')}</tr>
+                <tr class="row-total"><td>Unlevered FCF</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.ufcf)}</td>`).join('')}</tr><tr class="row-total" style="background: rgba(37, 99, 235, 0.05) !important; color:var(--accent);"><td>PV of UFCF</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.pvUfcf)}</td>`).join('')}</tr></table>`;
 
-            // Render all dashboard visuals
-            renderItemChart();
-            renderYearChart();
-            renderMarginChart();
-            renderWaterfallChart();
-            renderInsights(ev);
+            renderItemChart(); renderYearChart(); renderMarginChart(); renderWaterfallChart(); renderInsights(ev);
+        }
+
+        // ==========================================
+        // AI COPILOT LOGIC
+        // ==========================================
+        const apiSecretKey = ""; // Exec environment provides this
+
+        async function fetchGeminiWithBackoff(payload, maxRetries = 5) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiSecretKey}`;
+            let retries = 0;
+            const delays = [1000, 2000, 4000, 8000, 16000];
+
+            while (retries <= maxRetries) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        if (response.status === 429 || response.status >= 500) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        } else {
+                            const errorText = await response.text();
+                            throw new Error(`Non-retriable API error: ${response.status} - ${errorText}`);
+                        }
+                    }
+                    return await response.json();
+                } catch (error) {
+                    if (retries === maxRetries || error.message.includes('Non-retriable')) {
+                        throw error;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delays[retries]));
+                    retries++;
+                }
+            }
+        }
+
+        function formatMarkdown(text) {
+            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            formatted = formatted.replace(/\n/g, '<br>');
+            return formatted;
+        }
+
+        function buildModelContextString() {
+            if(!window.masterMatrix || window.masterMatrix.length === 0) return "Model is empty.";
+            
+            const ev = document.getElementById('dashEV').innerText;
+            const wacc = document.getElementById('dashWacc').innerText;
+            const tv = document.getElementById('outTv').innerText;
+            const tgr = document.getElementById('tgr').value + '%';
+            
+            let summary = `Current Model Financial Data:\n- Reporting Currency: ${window.currSym}\n- Implied Enterprise Value: ${ev}\n- Discount Rate (WACC): ${wacc}\n- Terminal Value: ${tv}\n- Terminal Growth Rate: ${tgr}\n\nYear-by-Year Snapshot (in Millions):\n`;
+            
+            window.masterMatrix.forEach((yr, idx) => {
+                summary += `[Year ${idx}]: Total Revenue=${yr.totalRev.toFixed(2)}, Gross Profit=${yr.gp.toFixed(2)}, EBITDA=${yr.ebitda.toFixed(2)}, Net Income=${yr.ni.toFixed(2)}, Unlevered Free Cash Flow (UFCF)=${yr.ufcf.toFixed(2)}, Cash Balance=${yr.cash.toFixed(2)}\n`;
+            });
+            return summary;
+        }
+
+        async function sendToAI() {
+            const inputEl = document.getElementById('aiUserInput');
+            const msg = inputEl.value.trim();
+            if(!msg) return;
+
+            // Update UI with User Message
+            const historyEl = document.getElementById('chatHistory');
+            historyEl.innerHTML += `<div class="chat-bubble chat-user">${msg}</div>`;
+            inputEl.value = '';
+            document.getElementById('aiSendBtn').disabled = true;
+            
+            // Add Loading Indicator
+            const loaderId = 'loader-' + Date.now();
+            historyEl.innerHTML += `
+                <div class="typing-indicator" id="${loaderId}">
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                </div>
+            `;
+            historyEl.scrollTop = historyEl.scrollHeight;
+
+            // Generate System Context
+            const systemContext = `You are an expert Investment Banking AI Analyst integrated directly into the 'DealCraft' financial modeling software. 
+Your job is to answer the user's questions about their current financial model. Be highly analytical, precise, and professional. 
+Format your responses clearly using markdown bolding where appropriate. Keep answers concise unless asked for a detailed breakdown.
+Here is the exact live data from the user's financial model:\n\n${buildModelContextString()}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: msg }] }],
+                systemInstruction: { parts: [{ text: systemContext }] }
+            };
+
+            try {
+                const result = await fetchGeminiWithBackoff(payload);
+                const reply = result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't generate a response based on the model data.";
+                
+                document.getElementById(loaderId).remove();
+                historyEl.innerHTML += `<div class="chat-bubble chat-ai">${formatMarkdown(reply)}</div>`;
+            } catch (error) {
+                document.getElementById(loaderId).remove();
+                historyEl.innerHTML += `<div class="chat-bubble chat-ai" style="color: var(--danger);">Error: Could not connect to the AI engine. Please try again.</div>`;
+                console.error("AI Fetch Error:", error);
+            } finally {
+                document.getElementById('aiSendBtn').disabled = false;
+                historyEl.scrollTop = historyEl.scrollHeight;
+                inputEl.focus();
+            }
         }
 
         // Init
