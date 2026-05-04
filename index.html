@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DealCraft v11.0 | AI Copilot Edition</title>
+    <title>DealCraft v12.0 | Hybrid IB & Textbook Engine</title>
     <style>
         :root {
             --bg-main: #f8fafc;
@@ -260,7 +260,7 @@
             body.print-all .tab-content:first-child { page-break-before: avoid; }
             body.print-all .sub-tab-content { display: block !important; margin-bottom: 30px !important; page-break-inside: auto; opacity: 1 !important; }
             
-            #tab-ai { display: none !important; } /* Do not print AI chat */
+            #tab-ai { display: none !important; } 
         }
     </style>
 </head>
@@ -346,7 +346,7 @@
                 <span class="tab-icon">💱</span> <span class="tab-label">Currency & Settings</span>
             </button>
         </div>
-        <div class="sidebar-footer">v11.0 AI Copilot Edition<br>Confidential</div>
+        <div class="sidebar-footer">v12.0 Hybrid Edition<br>Confidential</div>
     </nav>
 
     <!-- MAIN CONTENT -->
@@ -367,7 +367,7 @@
                     <span class="dash-value" id="dashWacc">0.0%</span>
                 </div>
                 <div class="dash-item" style="border-left: 1px solid var(--border); padding-left: 20px;">
-                    <span class="dash-label">Enterprise Value</span>
+                    <span class="dash-label" id="dashEqEVLabel">Enterprise Value</span>
                     <span class="dash-value primary" id="dashEV">$0.0 M</span>
                 </div>
             </div>
@@ -396,6 +396,7 @@
                                 <option value="ebit">EBIT</option>
                                 <option value="ni">Net Income</option>
                                 <option value="ufcf">Unlevered FCF</option>
+                                <option value="fcfe">Levered FCFE</option>
                                 <option value="cash">Cash Balance</option>
                                 <option value="assets">Total Assets</option>
                             </select>
@@ -462,9 +463,9 @@
                                 <select id="keMethod" onchange="toggleMethods()"><option value="capm">Use CAPM</option><option value="dgm">Dividend Growth</option><option value="direct">Direct Input</option></select>
                             </div>
                             <div id="capmInputs">
-                                <div class="input-group"><label>Risk-Free Rate (Rf) %</label><input type="number" id="rf" value="4.0" step="0.1" onchange="runModel()"></div>
-                                <div class="input-group"><label>Beta (β)</label><input type="number" id="beta" value="1.2" step="0.1" onchange="runModel()"></div>
-                                <div class="input-group"><label>Equity Risk Prem. (ERP) %</label><input type="number" id="erp" value="6.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Risk-Free Rate (Rf) %</label><input type="number" id="rf" value="6.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Beta (β)</label><input type="number" id="beta" value="1.7" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Market Risk Prem. %</label><input type="number" id="erp" value="5.0" step="0.1" onchange="runModel()"></div>
                             </div>
                             <div id="dgmInputs" style="display:none;">
                                 <div class="input-group"><label>Expected Div (D1) <span class="curr-lbl">$</span></label><input type="number" id="d1" value="5.0" step="0.1" onchange="runModel()"></div>
@@ -472,9 +473,9 @@
                                 <div class="input-group"><label>Growth Rate (g) %</label><input type="number" id="dgm_g" value="5.0" step="0.1" onchange="runModel()"></div>
                             </div>
                             <div id="directKeInput" style="display:none;">
-                                <div class="input-group"><label>Direct Ke Input %</label><input type="number" id="directKe" value="11.2" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Direct Ke Input %</label><input type="number" id="directKe" value="14.5" step="0.1" onchange="runModel()"></div>
                             </div>
-                            <div style="text-align:right; font-weight:600; font-size:12px; color:var(--positive); margin-top:8px;">Calculated Ke: <span id="outKe">11.2%</span></div>
+                            <div style="text-align:right; font-weight:600; font-size:12px; color:var(--positive); margin-top:8px;">Calculated Ke: <span id="outKe">14.5%</span></div>
                         </div>
 
                         <div class="wacc-box">
@@ -483,7 +484,7 @@
                                 <select id="kdMethod" onchange="toggleMethods()"><option value="direct">Direct Input</option><option value="irredeemable">Irredeemable</option><option value="redeemable">Redeemable</option></select>
                             </div>
                             <div id="directKdInput">
-                                <div class="input-group"><label>Direct Pre-Tax Kd %</label><input type="number" id="directKd" value="6.0" step="0.1" onchange="runModel()"></div>
+                                <div class="input-group"><label>Direct Pre-Tax Kd %</label><input type="number" id="directKd" value="7.0" step="0.1" onchange="runModel()"></div>
                             </div>
                             <div id="irredeemableKdInputs" style="display:none;">
                                 <div class="input-group"><label>Annual Interest (I) <span class="curr-lbl">$</span></label><input type="number" id="kd_irr_i" value="8.0" step="0.1" onchange="runModel()"></div>
@@ -495,7 +496,7 @@
                                 <div class="input-group"><label>Redeemable Val (RV) <span class="curr-lbl">$</span></label><input type="number" id="kd_red_rv" value="100.0" step="0.1" onchange="runModel()"></div>
                                 <div class="input-group"><label>Yrs to Maturity (n)</label><input type="number" id="kd_red_n" value="5" step="1" onchange="runModel()"></div>
                             </div>
-                            <div style="text-align:right; font-weight:600; font-size:12px; color:var(--positive); margin-top:8px;">Calculated Kd: <span id="outKd">6.0% (Pre-Tax)</span></div>
+                            <div style="text-align:right; font-weight:600; font-size:12px; color:var(--positive); margin-top:8px;">Calculated Kd: <span id="outKd">7.0% (Pre-Tax)</span></div>
                         </div>
                     </div>
 
@@ -521,11 +522,11 @@
                             </div>
                             <div style="text-align:right; font-weight:600; font-size:12px; color:var(--positive); margin-top:8px;">Calculated Kp: <span id="outKp">8.0%</span></div>
                         </div>
-                        <div class="input-group"><label>Tax Rate %</label><input type="number" id="tax" value="25.0" step="0.1" onchange="runModel()"></div>
+                        <div class="input-group"><label>Tax Rate %</label><input type="number" id="tax" value="30.0" step="0.1" onchange="runModel()"></div>
                         <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
-                        <div class="input-group"><label>Weight of Equity (We) %</label><input type="number" id="we" value="60" onchange="runModel()"></div>
-                        <div class="input-group"><label>Weight of Debt (Wd) %</label><input type="number" id="wd" value="30" onchange="runModel()"></div>
-                        <div class="input-group"><label>Weight of Preferred (Wp) %</label><input type="number" id="wp" value="10" onchange="runModel()"></div>
+                        <div class="input-group"><label>Weight of Equity (We) %</label><input type="number" id="we" value="40" onchange="runModel()"></div>
+                        <div class="input-group"><label>Weight of Debt (Wd) %</label><input type="number" id="wd" value="60" onchange="runModel()"></div>
+                        <div class="input-group"><label>Weight of Preferred (Wp) %</label><input type="number" id="wp" value="0" onchange="runModel()"></div>
                     </div>
                 </div>
             </div>
@@ -543,7 +544,7 @@
                         <h2>Multi-Stage Horizon <button class="btn" onclick="addStage()">+ Add Stage</button></h2>
                         <div id="stagesContainer"></div>
                         <div class="input-group" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
-                            <label style="font-weight:700;">Terminal Growth (Perpetuity) %</label><input type="number" id="tgr" value="4.0" step="0.1" onchange="runModel()">
+                            <label style="font-weight:700;">Terminal Growth (Perpetuity) %</label><input type="number" id="tgr" value="0.0" step="0.1" onchange="runModel()">
                         </div>
                     </div>
                 </div>
@@ -566,7 +567,7 @@
                                     <option value="margin">% of Total Rev</option>
                                     <option value="unit" id="cogsUnitOpt">Cost Per Unit ($)</option>
                                 </select>
-                                <input type="number" id="cogsVal" value="35" onchange="runModel()">
+                                <input type="number" id="cogsVal" value="0" onchange="runModel()">
                             </div>
                         </div>
                         <p style="font-size:11px; color:var(--text-muted); margin:15px 0 0 0;">* "Per Unit" expenses require at least one "Units x Price" revenue stream to generate Total Volume.</p>
@@ -577,34 +578,62 @@
             <!-- TAB 3: BALANCE SHEET DRIVERS -->
             <div id="tab-bs" class="tab-content">
                 <div class="sub-tabs">
-                    <button class="sub-tab-btn active" onclick="switchSubTab(event, 'sub-assets', 'bs')">Operating Assets</button>
+                    <button class="sub-tab-btn active" onclick="switchSubTab(event, 'sub-struct', 'bs')">Structural Drivers</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab(event, 'sub-assets', 'bs')">Operating Assets</button>
                     <button class="sub-tab-btn" onclick="switchSubTab(event, 'sub-liabs', 'bs')">Operating Liabilities</button>
-                    <button class="sub-tab-btn" onclick="switchSubTab(event, 'sub-struct', 'bs')">Structural Drivers</button>
                 </div>
 
-                <div class="sub-tab-content active" id="sub-assets">
+                <div class="sub-tab-content active" id="sub-struct">
+                    <div class="panel" style="max-width:600px;">
+                        <h2>Structural Drivers (Dynamic vs Fixed)</h2>
+                        <div class="input-group">
+                            <label>CapEx Calculation</label>
+                            <div style="display:flex; gap:5px;">
+                                <select id="capexType" style="width:110px;" onchange="runModel()">
+                                    <option value="pct">% of Rev</option>
+                                    <option value="flat" selected>Flat Amount</option>
+                                </select>
+                                <input type="number" id="capexVal" value="600" onchange="runModel()" style="width:80px;">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>D&A Calculation</label>
+                            <div style="display:flex; gap:5px;">
+                                <select id="deprType" style="width:110px;" onchange="runModel()">
+                                    <option value="pct">% of PP&E</option>
+                                    <option value="flat" selected>Flat Amount</option>
+                                </select>
+                                <input type="number" id="deprVal" value="100" onchange="runModel()" style="width:80px;">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>NWC Inv. (Change in WC)</label>
+                            <div style="display:flex; gap:5px;">
+                                <select id="nwcType" style="width:110px;" onchange="runModel()">
+                                    <option value="dynamic">Dynamic (Ast-Liab)</option>
+                                    <option value="flat" selected>Flat Annual Inv.</option>
+                                </select>
+                                <input type="number" id="nwcVal" value="250" onchange="runModel()" style="width:80px;">
+                            </div>
+                        </div>
+                        <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+                        <div class="input-group"><label>Yr 0 Cash (<span class="curr-lbl">$</span>M)</label><input type="number" id="bCash" value="100" onchange="runModel()"></div>
+                        <div class="input-group"><label>Yr 0 PP&E (<span class="curr-lbl">$</span>M)</label><input type="number" id="bPPE" value="1000" onchange="runModel()"></div>
+                        <div class="input-group"><label>Yr 0 Debt (<span class="curr-lbl">$</span>M)</label><input type="number" id="bDebt" value="4500" onchange="runModel()"></div>
+                    </div>
+                </div>
+                <div class="sub-tab-content" id="sub-assets">
                     <div class="panel" style="max-width:600px;">
                         <h2>Operating Assets <button class="btn" onclick="addAsset()">+ Add Asset</button></h2>
                         <div id="assetContainer"></div>
-                        <p style="font-size:11px; color:var(--text-muted); margin:10px 0 0 0;">Name | Yr 0 Base (<span class="curr-lbl">$</span>M) | % of Rev</p>
+                        <p style="font-size:11px; color:var(--text-muted); margin:10px 0 0 0;">Note: Only used if NWC Inv is set to "Dynamic" in Structural Drivers.</p>
                     </div>
                 </div>
                 <div class="sub-tab-content" id="sub-liabs">
                     <div class="panel" style="max-width:600px;">
                         <h2>Operating Liabilities <button class="btn" onclick="addLiab()">+ Add Liab</button></h2>
                         <div id="liabContainer"></div>
-                        <p style="font-size:11px; color:var(--text-muted); margin:10px 0 0 0;">Name | Yr 0 Base (<span class="curr-lbl">$</span>M) | % of Rev</p>
-                    </div>
-                </div>
-                <div class="sub-tab-content" id="sub-struct">
-                    <div class="panel" style="max-width:600px;">
-                        <h2>Structural Drivers & Yr 0</h2>
-                        <div class="input-group"><label>CapEx (% of Rev)</label><input type="number" id="capexPct" value="5" onchange="runModel()"></div>
-                        <div class="input-group"><label>D&A (% of PP&E)</label><input type="number" id="deprPct" value="10" onchange="runModel()"></div>
-                        <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
-                        <div class="input-group"><label>Yr 0 Cash (<span class="curr-lbl">$</span>M)</label><input type="number" id="bCash" value="100" onchange="runModel()"></div>
-                        <div class="input-group"><label>Yr 0 PP&E (<span class="curr-lbl">$</span>M)</label><input type="number" id="bPPE" value="800" onchange="runModel()"></div>
-                        <div class="input-group"><label>Yr 0 Debt (<span class="curr-lbl">$</span>M)</label><input type="number" id="bDebt" value="400" onchange="runModel()"></div>
+                        <p style="font-size:11px; color:var(--text-muted); margin:10px 0 0 0;">Note: Only used if NWC Inv is set to "Dynamic" in Structural Drivers.</p>
                     </div>
                 </div>
             </div>
@@ -623,11 +652,23 @@
 
             <!-- TAB 5: DCF VALUATION -->
             <div id="tab-val" class="tab-content">
+                <div class="panel" style="max-width: 600px; margin: 0 auto 20px auto; border: 1px solid var(--accent); background: var(--bg-input);">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label style="font-size: 15px; font-weight: 700; color: var(--text-main);">Valuation Method:</label>
+                        <select id="valMethod" onchange="runModel()" style="width: 250px; font-size: 14px; padding: 10px; background: var(--bg-panel);">
+                            <option value="fcff">Firm Valuation (FCFF / UFCF)</option>
+                            <option value="fcfe" selected>Equity Valuation (FCFE)</option>
+                        </select>
+                    </div>
+                    <p id="valMethodDesc" style="font-size:11px; color:var(--text-muted); margin:10px 0 0 0;"></p>
+                </div>
+
                 <div class="table-container" id="dcfContainer" style="margin-bottom: 25px;"></div>
+                
                 <div class="panel" style="max-width: 600px; margin: 0 auto; border: 2px solid var(--accent); background: var(--bg-panel);">
-                    <h2 style="justify-content: center; border-bottom: none; color: var(--accent); font-size: 20px; margin-bottom: 25px;">Valuation Output</h2>
+                    <h2 id="valOutputHeader" style="justify-content: center; border-bottom: none; color: var(--accent); font-size: 20px; margin-bottom: 25px;">Valuation Output</h2>
                     <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size: 15px;">
-                        <span style="color:var(--text-muted); font-weight:500;">Sum of PV UFCF:</span> <strong id="outPvUfcf">$0.0 M</strong>
+                        <span style="color:var(--text-muted); font-weight:500;">Sum of PV of Cash Flows:</span> <strong id="outPvUfcf">$0.0 M</strong>
                     </div>
                     <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size: 15px;">
                         <span style="color:var(--text-muted); font-weight:500;">Terminal Value (TV):</span> <strong id="outTv">$0.0 M</strong>
@@ -635,8 +676,24 @@
                     <div style="display:flex; justify-content:space-between; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border); font-size: 15px;">
                         <span style="color:var(--text-muted); font-weight:500;">PV of Terminal Value:</span> <strong id="outPvTv">$0.0 M</strong>
                     </div>
-                    <div style="display:flex; justify-content:space-between; font-size:24px; font-weight:700; color:var(--text-main); align-items: center;">
-                        <span>Implied Enterprise Value:</span> <span id="outEvFinal" style="color: var(--accent);">$0.0 M</span>
+                    <div style="display:flex; justify-content:space-between; font-size:24px; font-weight:700; color:var(--text-main); align-items: center; margin-bottom:20px;">
+                        <span id="coreValLabel">Implied Enterprise Value:</span> <span id="outEvFinal" style="color: var(--accent);">$0.0 M</span>
+                    </div>
+
+                    <!-- EV to EqV Bridge -->
+                    <div id="bridgeContainer" style="background: var(--bg-input); padding: 15px; border-radius: 8px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size: 13px;">
+                            <span style="color:var(--text-muted);">Implied Core Value:</span> <strong id="bridgeCore">$0.0 M</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size: 13px;">
+                            <span style="color:var(--text-muted);">(+) Cash & Equivalents:</span> <strong id="bridgeCash" style="color:var(--positive);">$0.0 M</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size: 13px;">
+                            <span style="color:var(--text-muted);">(-) Total Debt:</span> <strong id="bridgeDebt" style="color:var(--danger);">$0.0 M</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; border-top: 1px solid var(--border); padding-top: 10px; font-size: 16px; font-weight:700; color:var(--text-main);">
+                            <span id="bridgeFinalLabel">Implied Equity Value:</span> <span id="bridgeFinal" style="color: var(--text-main);">$0.0 M</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -652,7 +709,7 @@
                 </div>
             </div>
 
-            <!-- NEW TAB: AI COPILOT CHAT -->
+            <!-- TAB: AI COPILOT CHAT -->
             <div id="tab-ai" class="tab-content">
                 <div class="panel" style="padding: 0; display: flex; flex-direction: column; height: 600px; max-width: 900px; margin: 0 auto; border: 1px solid var(--accent);">
                     <h2 style="margin: 0; padding: 15px 20px; background: rgba(37, 99, 235, 0.05); color: var(--accent); border-bottom: 1px solid var(--border);">DealCraft AI Copilot</h2>
@@ -685,7 +742,7 @@
                             <option value="$">$ - US Dollar (USD)</option>
                             <option value="€">€ - Euro (EUR)</option>
                             <option value="£">£ - British Pound (GBP)</option>
-                            <option value="₹">₹ - Indian Rupee (INR)</option>
+                            <option value="₹" selected>₹ - Indian Rupee (INR)</option>
                             <option value="¥">¥ - Japanese Yen (JPY)</option>
                             <option value="¥">¥ - Chinese Yuan (CNY)</option>
                             <option value="A$">A$ - Australian Dollar (AUD)</option>
@@ -724,141 +781,94 @@
 </div>
 
     <script>
-        // GLOBALS
-        window.currSym = '$';
-        window.exchRate = 1.0;
-        window.masterMatrix = [];
-        window.masterTotalPeriods = 0;
-
-        // --- AI API CONFIG ---
-        const apiKey = ""; // Environment provided API key
+        // GLOBALS (using var to prevent redeclaration errors during live preview hot-reloads)
+        var currSym = '₹';
+        var exchRate = 1.0;
+        var masterMatrix = [];
+        var masterTotalPeriods = 0;
 
         // MODAL TOGGLES
         function openResetModal() { document.getElementById('resetModal').classList.add('active'); }
         function closeResetModal() { document.getElementById('resetModal').classList.remove('active'); }
 
-        // RESET ENGINE (True Zero-Out)
+        // RESET ENGINE 
         function resetModelDefaults() {
             closeResetModal();
-
-            // 1. Wipe dynamic arrays to a blank slate
             stages = [{ id: Date.now(), years: 5, growth: 0 }];
             revenues = [{ id: Date.now(), name: "Stream 1", type: 'flat', vol: 0, price: 0, base: 0 }];
             expenses = [{ id: Date.now(), name: "Expense 1", type: 'margin', margin: 0, unitCost: 0, base: 0 }];
-            opAssets = [];
-            opLiabs = [];
+            opAssets = []; opLiabs = [];
 
-            // 2. Wipe WACC & Capital Structure inputs to 0
             document.getElementById('rf').value = 0; document.getElementById('beta').value = 0; document.getElementById('erp').value = 0;
             document.getElementById('d1').value = 0; document.getElementById('p0').value = 1; document.getElementById('dgm_g').value = 0;
             document.getElementById('directKe').value = 0;
-            
             document.getElementById('directKd').value = 0; document.getElementById('kd_irr_i').value = 0; document.getElementById('kd_irr_np').value = 1;
             document.getElementById('kd_red_i').value = 0; document.getElementById('kd_red_np').value = 1; document.getElementById('kd_red_rv').value = 1; document.getElementById('kd_red_n').value = 1; 
-
             document.getElementById('directKp').value = 0; document.getElementById('kp_irr_pd').value = 0; document.getElementById('kp_irr_np').value = 1; 
             document.getElementById('kp_red_pd').value = 0; document.getElementById('kp_red_np').value = 1; document.getElementById('kp_red_rv').value = 1; document.getElementById('kp_red_n').value = 1; 
-
             document.getElementById('tax').value = 0; document.getElementById('we').value = 100; document.getElementById('wd').value = 0; document.getElementById('wp').value = 0;
             
-            // 3. Wipe Operation & Balance Sheet Drivers
             document.getElementById('tgr').value = 0; document.getElementById('cogsType').value = 'margin'; document.getElementById('cogsVal').value = 0;
-            document.getElementById('capexPct').value = 0; document.getElementById('deprPct').value = 0;
+            document.getElementById('capexType').value = 'pct'; document.getElementById('capexVal').value = 0;
+            document.getElementById('deprType').value = 'pct'; document.getElementById('deprVal').value = 0;
+            document.getElementById('nwcType').value = 'dynamic'; document.getElementById('nwcVal').value = 0;
             document.getElementById('bCash').value = 0; document.getElementById('bPPE').value = 0; document.getElementById('bDebt').value = 0;
 
-            // 4. Wipe Currency
             document.getElementById('currSymbol').value = '$'; document.getElementById('exchRate').value = 1.00;
-            window.currSym = '$'; window.exchRate = 1.0;
+            currSym = '$'; exchRate = 1.0;
 
-            // 5. Default Methods
             document.getElementById('keMethod').value = 'direct'; document.getElementById('kdMethod').value = 'direct'; document.getElementById('kpMethod').value = 'direct';
             
-            // 6. Force Full Re-render
             toggleMethods(); renderInputs(); runModel();
-
-            // 7. Explicitly clear charts and insights
-            setTimeout(() => {
-                renderItemChart(); renderYearChart(); renderMarginChart(); renderWaterfallChart(); renderInsights(0); 
-            }, 100);
+            setTimeout(() => { renderItemChart(); renderYearChart(); renderMarginChart(); renderWaterfallChart(); renderInsights(0); }, 100);
         }
 
         function updateCurrency() {
-            window.currSym = document.getElementById('currSymbol').value || '$';
-            window.exchRate = parseFloat(document.getElementById('exchRate').value) || 1.0;
-            document.querySelectorAll('.curr-lbl').forEach(el => el.innerText = window.currSym);
-            
+            currSym = document.getElementById('currSymbol').value || '$';
+            exchRate = parseFloat(document.getElementById('exchRate').value) || 1.0;
+            document.querySelectorAll('.curr-lbl').forEach(el => el.innerText = currSym);
             const cogsUnitOpt = document.getElementById('cogsUnitOpt');
-            if (cogsUnitOpt) cogsUnitOpt.text = `Cost Per Unit (${window.currSym})`;
-            
+            if (cogsUnitOpt) cogsUnitOpt.text = `Cost Per Unit (${currSym})`;
             renderInputs(); runModel();
         }
 
         // PDF EXPORT LOGIC
         function openExportModal() { document.getElementById('exportModal').classList.add('active'); }
         function closeExportModal() { document.getElementById('exportModal').classList.remove('active'); }
-
         function executeExport() {
             const content = document.getElementById('exportContent').value;
             const orientation = document.getElementById('exportOrientation').value;
-
             let styleElem = document.getElementById('printOrientationStyle');
-            if (!styleElem) {
-                styleElem = document.createElement('style');
-                styleElem.id = 'printOrientationStyle';
-                document.head.appendChild(styleElem);
-            }
+            if (!styleElem) { styleElem = document.createElement('style'); styleElem.id = 'printOrientationStyle'; document.head.appendChild(styleElem); }
             styleElem.innerHTML = `@page { size: ${orientation}; margin: 10mm; }`;
-
-            document.body.className = ''; 
-            document.body.classList.add(`print-${content}`);
-
-            setTimeout(() => {
-                window.print();
-                document.body.className = '';
-                styleElem.innerHTML = '';
-                closeExportModal();
-            }, 300);
+            document.body.className = ''; document.body.classList.add(`print-${content}`);
+            setTimeout(() => { window.print(); document.body.className = ''; styleElem.innerHTML = ''; closeExportModal(); }, 300);
         }
 
         // UI TOGGLES
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
-
         function switchTab(evt, tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.sidebar .tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
-            
-            if (tabId === 'tab-dash') {
-                setTimeout(() => { renderItemChart(); renderYearChart(); renderMarginChart(); renderWaterfallChart(); }, 10);
-            }
+            if (tabId === 'tab-dash') { setTimeout(() => { renderItemChart(); renderYearChart(); renderMarginChart(); renderWaterfallChart(); }, 10); }
         }
-
         function switchSubTab(evt, tabId, group) {
             const parent = evt.currentTarget.closest('.tab-content');
             parent.querySelectorAll('.sub-tab-content').forEach(tab => tab.classList.remove('active'));
             parent.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
-            
-            if (group === 'dash') {
-                setTimeout(() => { renderItemChart(); renderYearChart(); renderMarginChart(); renderWaterfallChart(); }, 10);
-            }
+            if (group === 'dash') { setTimeout(() => { renderItemChart(); renderYearChart(); renderMarginChart(); renderWaterfallChart(); }, 10); }
         }
 
-        // STATE MANAGEMENT
-        let stages = [{ id: 1, years: 3, growth: 15 }, { id: 2, years: 5, growth: 10 }];
-        let revenues = [
-            { id: 1, name: "Product Sales", type: 'unit', vol: 10, price: 50, base: 500 },
-            { id: 2, name: "Services", type: 'flat', vol: 0, price: 0, base: 150 }
-        ];
-        let expenses = [
-            { id: 1, name: "R&D", type: 'margin', margin: 15, unitCost: 0, base: 0 },
-            { id: 2, name: "Cloud Hosting", type: 'unit', margin: 0, unitCost: 5, base: 0 },
-            { id: 3, name: "Fixed SG&A", type: 'flat', margin: 0, unitCost: 0, base: 50 }
-        ];
-        let opAssets = [{ id: 1, name: "Accounts Rec.", base: 80, pctRev: 10 }, { id: 2, name: "Inventory", base: 40, pctRev: 5 }];
-        let opLiabs = [{ id: 1, name: "Accounts Pay.", base: 60, pctRev: 8 }, { id: 2, name: "Accrued Exp.", base: 20, pctRev: 2 }];
+        // STATE MANAGEMENT (using var)
+        var stages = [{ id: 1, years: 5, growth: 10 }];
+        var revenues = [{ id: 1, name: "Revenue", type: 'flat', vol: 0, price: 0, base: 38000 }];
+        var expenses = [{ id: 1, name: "Fixed OpEx", type: 'flat', margin: 0, unitCost: 0, base: 33700 }];
+        var opAssets = [];
+        var opLiabs = [];
 
         // RENDER INPUT DOM
         function renderInputs() {
@@ -875,13 +885,13 @@
                 <div class="dynamic-row">
                     <input type="text" class="text-input" value="${r.name}" onchange="updateRev(${i}, 'name', this.value)" style="min-width:120px;">
                     <select onchange="updateRev(${i}, 'type', this.value)" style="width:120px;">
-                        <option value="flat" ${r.type==='flat'?'selected':''}>Flat Base (${window.currSym}M)</option>
+                        <option value="flat" ${r.type==='flat'?'selected':''}>Flat Base (${currSym}M)</option>
                         <option value="unit" ${r.type==='unit'?'selected':''}>Units x Price</option>
                     </select>
                     ${r.type === 'unit' ? 
                         `<input type="number" value="${r.vol}" onchange="updateRev(${i}, 'vol', this.value)" placeholder="Vol (M)">
-                         <input type="number" value="${r.price}" onchange="updateRev(${i}, 'price', this.value)" placeholder="Price (${window.currSym})">` :
-                        `<input type="number" value="${r.base}" onchange="updateRev(${i}, 'base', this.value)" placeholder="Base ${window.currSym}M">`
+                         <input type="number" value="${r.price}" onchange="updateRev(${i}, 'price', this.value)" placeholder="Price (${currSym})">` :
+                        `<input type="number" value="${r.base}" onchange="updateRev(${i}, 'base', this.value)" placeholder="Base ${currSym}M">`
                     }
                     <button class="btn btn-danger" onclick="removeRev(${i})">✕</button>
                 </div>
@@ -893,11 +903,11 @@
                     <select onchange="updateOpex(${i}, 'type', this.value)" style="width:120px;">
                         <option value="margin" ${e.type==='margin'?'selected':''}>% of Total Rev</option>
                         <option value="unit" ${e.type==='unit'?'selected':''}>Per Unit Cost</option>
-                        <option value="flat" ${e.type==='flat'?'selected':''}>Flat Fixed (${window.currSym}M)</option>
+                        <option value="flat" ${e.type==='flat'?'selected':''}>Flat Fixed (${currSym}M)</option>
                     </select>
                     ${e.type === 'margin' ? `<input type="number" value="${e.margin}" onchange="updateOpex(${i}, 'margin', this.value)" placeholder="% Margin">` : ''}
-                    ${e.type === 'unit' ? `<input type="number" value="${e.unitCost}" onchange="updateOpex(${i}, 'unitCost', this.value)" placeholder="Cost/Unit (${window.currSym})">` : ''}
-                    ${e.type === 'flat' ? `<input type="number" value="${e.base}" onchange="updateOpex(${i}, 'base', this.value)" placeholder="Fixed ${window.currSym}M">` : ''}
+                    ${e.type === 'unit' ? `<input type="number" value="${e.unitCost}" onchange="updateOpex(${i}, 'unitCost', this.value)" placeholder="Cost/Unit (${currSym})">` : ''}
+                    ${e.type === 'flat' ? `<input type="number" value="${e.base}" onchange="updateOpex(${i}, 'base', this.value)" placeholder="Fixed ${currSym}M">` : ''}
                     <button class="btn btn-danger" onclick="removeOpex(${i})">✕</button>
                 </div>
             `).join('');
@@ -905,7 +915,7 @@
             document.getElementById('assetContainer').innerHTML = opAssets.map((a, i) => `
                 <div class="dynamic-row">
                     <input type="text" class="text-input" value="${a.name}" onchange="updateAsset(${i}, 'name', this.value)">
-                    <input type="number" value="${a.base}" onchange="updateAsset(${i}, 'base', this.value)" placeholder="Base ${window.currSym}M">
+                    <input type="number" value="${a.base}" onchange="updateAsset(${i}, 'base', this.value)" placeholder="Base ${currSym}M">
                     <input type="number" value="${a.pctRev}" onchange="updateAsset(${i}, 'pctRev', this.value)" placeholder="% Rev">
                     <button class="btn btn-danger" onclick="removeAsset(${i})">✕</button>
                 </div>
@@ -914,49 +924,45 @@
             document.getElementById('liabContainer').innerHTML = opLiabs.map((l, i) => `
                 <div class="dynamic-row">
                     <input type="text" class="text-input" value="${l.name}" onchange="updateLiab(${i}, 'name', this.value)">
-                    <input type="number" value="${l.base}" onchange="updateLiab(${i}, 'base', this.value)" placeholder="Base ${window.currSym}M">
+                    <input type="number" value="${l.base}" onchange="updateLiab(${i}, 'base', this.value)" placeholder="Base ${currSym}M">
                     <input type="number" value="${l.pctRev}" onchange="updateLiab(${i}, 'pctRev', this.value)" placeholder="% Rev">
                     <button class="btn btn-danger" onclick="removeLiab(${i})">✕</button>
                 </div>
             `).join('');
             
-            document.querySelectorAll('.curr-lbl').forEach(el => el.innerText = window.currSym);
+            document.querySelectorAll('.curr-lbl').forEach(el => el.innerText = currSym);
         }
 
         function addStage() { stages.push({ id: Date.now(), years: 5, growth: 5 }); renderInputs(); runModel(); }
         function removeStage(index) { if(stages.length > 1) { stages.splice(index, 1); renderInputs(); runModel(); } }
         function updateStage(index, key, val) { stages[index][key] = parseFloat(val)||0; runModel(); }
-
         function addRev() { revenues.push({ id: Date.now(), name: "New Stream", type: 'flat', vol: 0, price: 0, base: 100 }); renderInputs(); runModel(); }
         function removeRev(index) { revenues.splice(index, 1); renderInputs(); runModel(); }
         function updateRev(index, key, val) { revenues[index][key] = key === 'name' || key === 'type' ? val : parseFloat(val)||0; if(key === 'type') renderInputs(); runModel(); }
-
         function addOpex() { expenses.push({ id: Date.now(), name: "New Expense", type: 'margin', margin: 5, unitCost: 5, base: 20 }); renderInputs(); runModel(); }
         function removeOpex(index) { expenses.splice(index, 1); renderInputs(); runModel(); }
         function updateOpex(index, key, val) { expenses[index][key] = key === 'name' || key === 'type' ? val : parseFloat(val)||0; if(key === 'type') renderInputs(); runModel(); }
-
         function addAsset() { opAssets.push({ id: Date.now(), name: "New Asset", base: 20, pctRev: 5 }); renderInputs(); runModel(); }
         function removeAsset(index) { opAssets.splice(index, 1); renderInputs(); runModel(); }
         function updateAsset(index, key, val) { opAssets[index][key] = key === 'name' ? val : parseFloat(val)||0; runModel(); }
-
         function addLiab() { opLiabs.push({ id: Date.now(), name: "New Liability", base: 20, pctRev: 5 }); renderInputs(); runModel(); }
         function removeLiab(index) { opLiabs.splice(index, 1); renderInputs(); runModel(); }
         function updateLiab(index, key, val) { opLiabs[index][key] = key === 'name' ? val : parseFloat(val)||0; runModel(); }
 
-        const f = (num) => {
-            const val = (parseFloat(num) || 0) * window.exchRate;
+        function f(num) {
+            const val = (parseFloat(num) || 0) * exchRate;
             const str = Math.abs(val).toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
             if (val <= -0.049) return `<span class="val-negative">(${str})</span>`;
             return str;
-        };
+        }
 
-        const cF = (val) => {
+        function cF(val) {
             if (isNaN(val)) return `<span class="val-negative">Error</span>`;
-            const v = (parseFloat(val) || 0) * window.exchRate;
+            const v = (parseFloat(val) || 0) * exchRate;
             const str = Math.abs(v).toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
-            if (v <= -0.049) return `<span class="val-negative">(${window.currSym}${str}) M</span>`;
-            return `${window.currSym}${str} M`;
-        };
+            if (v <= -0.049) return `<span class="val-negative">(${currSym}${str}) M</span>`;
+            return `${currSym}${str} M`;
+        }
 
         function toggleMethods() {
             const keM = document.getElementById('keMethod').value;
@@ -980,10 +986,10 @@
         // DASHBOARD RENDERING LOGIC
         // ==========================================
         function renderItemChart() {
-            const m = window.masterMatrix;
+            const m = masterMatrix;
             if (!m || m.length === 0) return;
             const item = document.getElementById('dashItemSelect').value;
-            let data = m.map(yr => (yr[item] || 0) * window.exchRate);
+            let data = m.map(yr => (yr[item] || 0) * exchRate);
             const maxVal = Math.max(...data, 0); const minVal = Math.min(...data, 0);
             const range = (maxVal - minVal) || 1; 
             const zeroY = (maxVal / range) * 100;
@@ -993,22 +999,16 @@
                 const val = data[t]; const pct = (Math.abs(val) / range) * 100;
                 let barStyle = val >= 0 ? `height: ${pct}%; bottom: ${100 - zeroY}%;` : `height: ${pct}%; top: ${zeroY}%;`;
                 const strVal = Math.abs(val).toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
-                const displayVal = val < 0 ? `(${window.currSym}${strVal})` : `${window.currSym}${strVal}`;
+                const displayVal = val < 0 ? `(${currSym}${strVal})` : `${currSym}${strVal}`;
                 const valColor = val < 0 ? 'var(--danger)' : 'var(--text-main)';
 
-                colsHTML += `
-                    <div class="chart-col">
-                        <div class="chart-val" style="${val >= 0 ? `bottom: calc(${100 - zeroY}% + ${pct}% + 5px);` : `top: calc(${zeroY}% + ${pct}% + 5px);`} color: ${valColor};">${displayVal}</div>
-                        <div class="chart-bar ${val < 0 ? 'negative' : ''}" style="${barStyle}"></div>
-                        <div class="chart-label">Yr ${t}</div>
-                    </div>
-                `;
+                colsHTML += `<div class="chart-col"><div class="chart-val" style="${val >= 0 ? `bottom: calc(${100 - zeroY}% + ${pct}% + 5px);` : `top: calc(${zeroY}% + ${pct}% + 5px);`} color: ${valColor};">${displayVal}</div><div class="chart-bar ${val < 0 ? 'negative' : ''}" style="${barStyle}"></div><div class="chart-label">Yr ${t}</div></div>`;
             }
             document.getElementById('itemChartContainer').innerHTML = `<div class="chart-wrapper"><div class="chart-gridline" style="top: 0%;"></div><div class="chart-gridline" style="top: 25%;"></div><div class="chart-gridline" style="top: 50%;"></div><div class="chart-gridline" style="top: 75%;"></div><div class="chart-zero-line" style="top: ${zeroY}%;"></div>${colsHTML}</div>`;
         }
 
         function renderMarginChart() {
-            const m = window.masterMatrix;
+            const m = masterMatrix;
             if (!m || m.length === 0) return;
 
             let data = [];
@@ -1060,19 +1060,33 @@
         }
 
         function renderWaterfallChart() {
-            const m = window.masterMatrix;
+            const m = masterMatrix;
             if (!m || m.length === 0) return;
             const yrIdx = parseInt(document.getElementById('dashBridgeYearSelect').value) || 0;
             if(yrIdx === 0 && m.length > 1) { document.getElementById('dashBridgeYearSelect').value = 1; return renderWaterfallChart(); }
             const yr = m[yrIdx];
+            const valMethod = document.getElementById('valMethod').value;
 
             let bars = []; let currentY = 0;
-            let ebitda = yr.ebitda * window.exchRate; bars.push({ name: 'EBITDA', val: ebitda, start: 0, end: ebitda, type: 'total' }); currentY = ebitda;
-            let taxes = -yr.taxExp * window.exchRate; bars.push({ name: 'Cash Taxes', val: taxes, start: currentY, end: currentY + taxes, type: 'neg' }); currentY += taxes;
-            let capex = -yr.capex * window.exchRate; bars.push({ name: 'CapEx', val: capex, start: currentY, end: currentY + capex, type: 'neg' }); currentY += capex;
-            let chgAst = -yr.chgOpAssets * window.exchRate; bars.push({ name: 'Chg Assets', val: chgAst, start: currentY, end: currentY + chgAst, type: chgAst >= 0 ? 'pos' : 'neg' }); currentY += chgAst;
-            let chgLiab = yr.chgOpLiabs * window.exchRate; bars.push({ name: 'Chg Liabs', val: chgLiab, start: currentY, end: currentY + chgLiab, type: chgLiab >= 0 ? 'pos' : 'neg' }); currentY += chgLiab;
-            let ufcf = yr.ufcf * window.exchRate; bars.push({ name: 'UFCF', val: ufcf, start: 0, end: ufcf, type: 'total' });
+            
+            if (valMethod === 'fcff') {
+                let ebitda = yr.ebitda * exchRate; bars.push({ name: 'EBITDA', val: ebitda, start: 0, end: ebitda, type: 'total' }); currentY = ebitda;
+                let taxes = -yr.taxExp * exchRate; bars.push({ name: 'Cash Taxes', val: taxes, start: currentY, end: currentY + taxes, type: 'neg' }); currentY += taxes;
+            } else {
+                let ni = yr.ni * exchRate; bars.push({ name: 'Net Income', val: ni, start: 0, end: ni, type: 'total' }); currentY = ni;
+                let depr = yr.depr * exchRate; bars.push({ name: 'Non-Cash D&A', val: depr, start: currentY, end: currentY + depr, type: 'pos' }); currentY += depr;
+            }
+            
+            let capex = -yr.capex * exchRate; bars.push({ name: 'CapEx', val: capex, start: currentY, end: currentY + capex, type: 'neg' }); currentY += capex;
+            let chgAst = -yr.chgOpAssets * exchRate; bars.push({ name: 'Chg Assets (WC)', val: chgAst, start: currentY, end: currentY + chgAst, type: chgAst >= 0 ? 'pos' : 'neg' }); currentY += chgAst;
+            let chgLiab = yr.chgOpLiabs * exchRate; bars.push({ name: 'Chg Liabs (WC)', val: chgLiab, start: currentY, end: currentY + chgLiab, type: chgLiab >= 0 ? 'pos' : 'neg' }); currentY += chgLiab;
+            
+            if (valMethod === 'fcfe') {
+                let netB = yr.netBorrowing * exchRate; bars.push({ name: 'Net Borrowing', val: netB, start: currentY, end: currentY + netB, type: netB >= 0 ? 'pos' : 'neg' }); currentY += netB;
+            }
+
+            let finalCf = valMethod === 'fcff' ? yr.ufcf * exchRate : yr.fcfe * exchRate;
+            bars.push({ name: valMethod === 'fcff' ? 'UFCF' : 'FCFE', val: finalCf, start: 0, end: finalCf, type: 'total' });
 
             let allY = bars.flatMap(b => [b.start, b.end]);
             let maxVal = Math.max(...allY, 0); let minVal = Math.min(...allY, 0);
@@ -1090,19 +1104,13 @@
                 const valColor = b.val < 0 ? 'var(--danger)' : 'var(--text-main)';
                 let connectorHTML = i < bars.length - 1 ? `<div style="position:absolute; right:-50%; width:100%; top:0; border-top:1px dashed var(--text-muted); z-index:1;"></div>` : '';
 
-                colsHTML += `
-                    <div class="chart-col">
-                        <div class="chart-val" style="bottom: calc(${bottomPct + heightPct}% + 5px); color: ${valColor};">${displayVal}</div>
-                        <div style="position: absolute; width: 70%; max-width: 60px; border-radius: 3px; ${colorClass} height: ${heightPct}%; bottom: ${bottomPct}%; z-index:2;">${connectorHTML}</div>
-                        <div class="chart-label">${b.name}</div>
-                    </div>
-                `;
+                colsHTML += `<div class="chart-col"><div class="chart-val" style="bottom: calc(${bottomPct + heightPct}% + 5px); color: ${valColor};">${displayVal}</div><div style="position: absolute; width: 70%; max-width: 60px; border-radius: 3px; ${colorClass} height: ${heightPct}%; bottom: ${bottomPct}%; z-index:2;">${connectorHTML}</div><div class="chart-label">${b.name}</div></div>`;
             });
             document.getElementById('waterfallChartContainer').innerHTML = `<div class="chart-wrapper" style="height: 280px;"><div class="chart-zero-line" style="top: ${zeroY}%;"></div>${colsHTML}</div>`;
         }
 
         function renderYearChart() {
-            const m = window.masterMatrix;
+            const m = masterMatrix;
             if (!m || m.length === 0) return;
             const yrIdx = parseInt(document.getElementById('dashYearSelect').value) || 0;
             const yrData = m[yrIdx];
@@ -1113,7 +1121,7 @@
             yrData.revLines.forEach((r, i) => {
                 const w = (r.val / totalRev) * 100; const c = colors[i % colors.length];
                 if (w > 0) revHTML += `<div class="h-chart-segment" style="width: ${w}%; background: ${c};" title="${r.name}: ${w.toFixed(1)}%">${w > 5 ? w.toFixed(1) + '%' : ''}</div>`;
-                revLegend += `<div class="legend-item"><div class="legend-color" style="background: ${c};"></div>${r.name} (${window.currSym}${(r.val * window.exchRate).toFixed(1)}M)</div>`;
+                revLegend += `<div class="legend-item"><div class="legend-color" style="background: ${c};"></div>${r.name} (${currSym}${(r.val * exchRate).toFixed(1)}M)</div>`;
             });
             document.getElementById('yearRevChart').innerHTML = `<div class="h-chart-wrapper"><div class="h-chart-bar">${revHTML}</div><div class="h-chart-legend">${revLegend}</div></div>`;
 
@@ -1123,15 +1131,15 @@
                 if (val <= 0) return;
                 const w = (val / totalOpex) * 100; const c = colors[expIndex % colors.length];
                 expHTML += `<div class="h-chart-segment" style="width: ${w}%; background: ${c};" title="${name}: ${w.toFixed(1)}%">${w > 5 ? w.toFixed(1) + '%' : ''}</div>`;
-                expLegend += `<div class="legend-item"><div class="legend-color" style="background: ${c};"></div>${name} (${window.currSym}${(val * window.exchRate).toFixed(1)}M)</div>`;
+                expLegend += `<div class="legend-item"><div class="legend-color" style="background: ${c};"></div>${name} (${currSym}${(val * exchRate).toFixed(1)}M)</div>`;
                 expIndex++;
             };
             addExpSeg('COGS', yrData.cogs); yrData.expLines.forEach(e => addExpSeg(e.name, e.val)); addExpSeg('D&A', yrData.depr);
             document.getElementById('yearExpChart').innerHTML = `<div class="h-chart-wrapper"><div class="h-chart-bar">${expHTML}</div><div class="h-chart-legend">${expLegend}</div></div>`;
         }
 
-        function renderInsights(ev) {
-            const m = window.masterMatrix;
+        function renderInsights(ev, valMethod) {
+            const m = masterMatrix;
             if (!m || m.length <= 1) return;
 
             let html = ''; const t0 = m[0]; const t1 = m[1]; const tN = m[m.length - 1]; const totalPeriods = m.length - 1;
@@ -1160,12 +1168,13 @@
             else html += `<div class="insight-card warning"><div class="insight-header">🔥 High Cash Burn Profile</div><p>Operations and CapEx consume more cash than generated. The business survives strictly because of the initial Year 0 buffer (<strong>${cF(t0.cash)}</strong>).</p></div>`;
 
             if (ev > 0 && t1.ebitda > 0) {
-                const entryMultiple = ev / (t1.ebitda * window.exchRate);
-                if (entryMultiple > 18) html += `<div class="insight-card warning"><div class="insight-header">🔮 Rich Valuation Multiple</div><p>The Enterprise Value implies a Yr 1 EV/EBITDA multiple of <strong>${entryMultiple.toFixed(1)}x</strong>. This premium requires flawless execution to justify. Check if your Terminal Growth Rate (${(parseFloat(document.getElementById('tgr').value)||0).toFixed(1)}%) is artificially inflating the TV.</p></div>`;
+                let impliedEV = valMethod === 'fcfe' ? ev - t0.cash + t0.debt : ev;
+                const entryMultiple = impliedEV / (t1.ebitda * exchRate);
+                if (entryMultiple > 18) html += `<div class="insight-card warning"><div class="insight-header">🔮 Rich Valuation Multiple</div><p>The implied Enterprise Value implies a Yr 1 EV/EBITDA multiple of <strong>${entryMultiple.toFixed(1)}x</strong>. This premium requires flawless execution to justify. Check your Terminal Growth Rate (${(parseFloat(document.getElementById('tgr').value)||0).toFixed(1)}%).</p></div>`;
                 else if (entryMultiple < 5) html += `<div class="insight-card info"><div class="insight-header">🏷️ Distressed / Value Asset</div><p>Implied Yr 1 EV/EBITDA is only <strong>${entryMultiple.toFixed(1)}x</strong>. This usually signals a distressed asset, heavy debt loads, or ultra-conservative discount rates.</p></div>`;
                 else html += `<div class="insight-card success"><div class="insight-header">✅ Market-Clearing Valuation</div><p>Implied Yr 1 EV/EBITDA is <strong>${entryMultiple.toFixed(1)}x</strong>, aligning perfectly with healthy, mid-market corporate valuations.</p></div>`;
             } else if (ev <= 0) {
-                 html += `<div class="insight-card warning"><div class="insight-header">❌ Invalid Valuation Math</div><p>The DCF failed. Check if your WACC (${document.getElementById('dashWacc').innerText}) is lower than your Terminal Growth Rate, or if the business never achieves positive cash flow.</p></div>`;
+                 html += `<div class="insight-card warning"><div class="insight-header">❌ Invalid Valuation Math</div><p>The DCF failed. Check if your Discount Rate is lower than your Terminal Growth Rate, or if the business never achieves positive cash flow.</p></div>`;
             }
             document.getElementById('insightsContainer').innerHTML = html;
         }
@@ -1211,12 +1220,25 @@
             if(totalPeriods === 0) { totalPeriods = 1; yearMap[1] = { growth: 0, stageNum: 1 }; }
             const tgr = parseFloat(document.getElementById('tgr').value)/100;
 
-            const capexPct = parseFloat(document.getElementById('capexPct').value)/100, deprPct = parseFloat(document.getElementById('deprPct').value)/100;
-            const bCash = parseFloat(document.getElementById('bCash').value), bPPE = parseFloat(document.getElementById('bPPE').value), bDebt = parseFloat(document.getElementById('bDebt').value);
+            const capexType = document.getElementById('capexType').value;
+            const capexVal = parseFloat(document.getElementById('capexVal').value) || 0;
+            const deprType = document.getElementById('deprType').value;
+            const deprVal = parseFloat(document.getElementById('deprVal').value) || 0;
+            const nwcType = document.getElementById('nwcType').value;
+            const nwcVal = parseFloat(document.getElementById('nwcVal').value) || 0;
+
+            const bCash = parseFloat(document.getElementById('bCash').value);
+            const bPPE = parseFloat(document.getElementById('bPPE').value);
+            const bDebt = parseFloat(document.getElementById('bDebt').value);
 
             let m = []; for(let t=0; t<=totalPeriods; t++) m.push({ revLines: [], expLines: [], assetLines: [], liabLines: [] });
 
+            // Calculate Base Working Capital (Yr 0)
+            let totalOpAssets0 = 0; opAssets.forEach(a => totalOpAssets0 += a.base);
+            let totalOpLiabs0 = 0; opLiabs.forEach(l => totalOpLiabs0 += l.base);
+
             for(let t=0; t<=totalPeriods; t++) {
+                // REVENUES
                 let totalRev = 0; let totalVol = 0;
                 revenues.forEach((r, i) => {
                     let val = 0; let vol = 0;
@@ -1231,12 +1253,14 @@
                 });
                 m[t].totalRev = totalRev; m[t].totalVol = totalVol;
 
+                // COGS
                 const cogsType = document.getElementById('cogsType').value;
                 const cogsVal = parseFloat(document.getElementById('cogsVal').value) || 0;
                 if (cogsType === 'margin') m[t].cogs = totalRev * (cogsVal / 100); 
                 else m[t].cogs = totalVol * cogsVal; 
                 m[t].gp = totalRev - m[t].cogs;
 
+                // OPEX
                 let totalOpex = 0;
                 expenses.forEach((e, i) => {
                     let val = 0;
@@ -1247,52 +1271,125 @@
                 });
                 m[t].totalOpex = totalOpex; m[t].ebitda = m[t].gp - totalOpex;
 
-                if (t===0) { m[t].ppe = bPPE; m[t].depr = m[t].ppe * deprPct; m[t].capex = 0; } 
-                else { m[t].depr = m[t-1].ppe * deprPct; m[t].capex = m[t].totalRev * capexPct; m[t].ppe = m[t-1].ppe + m[t].capex - m[t].depr; }
-
-                m[t].ebit = m[t].ebitda - m[t].depr; m[t].debt = bDebt; m[t].interest = m[t].debt * kd;
-                m[t].ebt = m[t].ebit - m[t].interest; m[t].taxExp = m[t].ebt > 0 ? m[t].ebt * tax : 0; m[t].ni = m[t].ebt - m[t].taxExp;
-
-                let totalOpAssets = 0;
-                opAssets.forEach((a, i) => {
-                    let val = t === 0 ? a.base : m[t].totalRev * (a.pctRev / 100);
-                    m[t].assetLines.push({ name: a.name, val: val }); totalOpAssets += val;
-                });
-                m[t].totalOpAssets = totalOpAssets; m[t].chgOpAssets = t === 0 ? 0 : m[t].totalOpAssets - m[t-1].totalOpAssets;
-
-                let totalOpLiabs = 0;
-                opLiabs.forEach((l, i) => {
-                    let val = t === 0 ? l.base : m[t].totalRev * (l.pctRev / 100);
-                    m[t].liabLines.push({ name: l.name, val: val }); totalOpLiabs += val;
-                });
-                m[t].totalOpLiabs = totalOpLiabs; m[t].chgOpLiabs = t === 0 ? 0 : m[t].totalOpLiabs - m[t-1].totalOpLiabs;
-
-                if (t===0) {
-                    m[t].re = m[t].ni; let assets0 = bCash + m[t].totalOpAssets + m[t].ppe; m[t].equity = assets0 - m[t].debt - m[t].totalOpLiabs - m[t].re; 
-                } else { m[t].re = m[t-1].re + m[t].ni; m[t].equity = m[t-1].equity; }
-
-                if(t===0) { m[t].cfo = 0; m[t].cfi = 0; m[t].netCf = 0; m[t].cash = bCash; } 
-                else {
-                    m[t].cfo = m[t].ni + m[t].depr - m[t].chgOpAssets + m[t].chgOpLiabs; m[t].cfi = -m[t].capex;
-                    m[t].netCf = m[t].cfo + m[t].cfi; m[t].cash = m[t-1].cash + m[t].netCf;
+                // PPE & DEPRECIATION
+                if (t===0) { 
+                    m[t].ppe = bPPE; 
+                    m[t].depr = deprType === 'pct' ? m[t].ppe * (deprVal / 100) : deprVal; 
+                    m[t].capex = 0; 
+                } 
+                else { 
+                    m[t].depr = deprType === 'pct' ? m[t-1].ppe * (deprVal / 100) : deprVal; 
+                    m[t].capex = capexType === 'pct' ? m[t].totalRev * (capexVal / 100) : capexVal; 
+                    m[t].ppe = m[t-1].ppe + m[t].capex - m[t].depr; 
                 }
 
-                m[t].assets = m[t].cash + m[t].totalOpAssets + m[t].ppe; m[t].liabEq = m[t].debt + m[t].totalOpLiabs + m[t].equity + m[t].re;
-                m[t].nopat = m[t].ebit * (1 - tax); m[t].ufcf = t===0 ? 0 : m[t].nopat + m[t].depr - m[t].capex - m[t].chgOpAssets + m[t].chgOpLiabs;
-                m[t].pvUfcf = t===0 ? 0 : m[t].ufcf / Math.pow(1 + wacc, t);
+                // EBIT & INTEREST
+                m[t].ebit = m[t].ebitda - m[t].depr; 
+                m[t].debt = bDebt; 
+                m[t].interest = m[t].debt * kd;
+                m[t].ebt = m[t].ebit - m[t].interest; 
+                m[t].taxExp = m[t].ebt > 0 ? m[t].ebt * tax : 0; 
+                m[t].ni = m[t].ebt - m[t].taxExp;
+
+                // WORKING CAPITAL
+                if (nwcType === 'dynamic') {
+                    let totalOpAssets = 0;
+                    opAssets.forEach((a, i) => {
+                        let val = t === 0 ? a.base : m[t].totalRev * (a.pctRev / 100);
+                        m[t].assetLines.push({ name: a.name, val: val }); totalOpAssets += val;
+                    });
+                    m[t].totalOpAssets = totalOpAssets; 
+                    m[t].chgOpAssets = t === 0 ? 0 : m[t].totalOpAssets - m[t-1].totalOpAssets;
+
+                    let totalOpLiabs = 0;
+                    opLiabs.forEach((l, i) => {
+                        let val = t === 0 ? l.base : m[t].totalRev * (l.pctRev / 100);
+                        m[t].liabLines.push({ name: l.name, val: val }); totalOpLiabs += val;
+                    });
+                    m[t].totalOpLiabs = totalOpLiabs; 
+                    m[t].chgOpLiabs = t === 0 ? 0 : m[t].totalOpLiabs - m[t-1].totalOpLiabs;
+
+                    m[t].chgNwc = t === 0 ? 0 : m[t].chgOpAssets - m[t].chgOpLiabs;
+                } else {
+                    if (t === 0) {
+                        m[t].totalOpAssets = totalOpAssets0; m[t].totalOpLiabs = totalOpLiabs0;
+                        m[t].chgOpAssets = 0; m[t].chgOpLiabs = 0; m[t].chgNwc = 0;
+                        opAssets.forEach(a => m[t].assetLines.push({ name: a.name, val: a.base }));
+                        opLiabs.forEach(l => m[t].liabLines.push({ name: l.name, val: l.base }));
+                    } else {
+                        m[t].chgNwc = nwcVal;
+                        m[t].chgOpAssets = nwcVal; m[t].chgOpLiabs = 0; 
+                        m[t].totalOpAssets = m[t-1].totalOpAssets + m[t].chgOpAssets;
+                        m[t].totalOpLiabs = m[t-1].totalOpLiabs + m[t].chgOpLiabs;
+                        opAssets.forEach((a, i) => m[t].assetLines.push({ name: a.name, val: i === 0 ? m[t].totalOpAssets : 0 }));
+                        opLiabs.forEach((l, i) => m[t].liabLines.push({ name: l.name, val: i === 0 ? m[t].totalOpLiabs : 0 }));
+                    }
+                }
+
+                // NET BORROWING (CFF)
+                m[t].netBorrowing = t === 0 ? 0 : m[t].debt - m[t-1].debt;
+
+                // EQUITY & RE
+                if (t===0) {
+                    m[t].re = m[t].ni; 
+                    let assets0 = bCash + m[t].totalOpAssets + m[t].ppe; 
+                    m[t].equity = assets0 - m[t].debt - m[t].totalOpLiabs - m[t].re; 
+                } else { 
+                    m[t].re = m[t-1].re + m[t].ni; 
+                    m[t].equity = m[t-1].equity; 
+                }
+
+                // CFS
+                if(t===0) { 
+                    m[t].cfo = 0; m[t].cfi = 0; m[t].netCf = 0; m[t].cash = bCash; 
+                } else {
+                    m[t].cfo = m[t].ni + m[t].depr - m[t].chgOpAssets + m[t].chgOpLiabs; 
+                    m[t].cfi = -m[t].capex; 
+                    m[t].netCf = m[t].cfo + m[t].cfi + m[t].netBorrowing; 
+                    m[t].cash = m[t-1].cash + m[t].netCf;
+                }
+
+                // BS BALANCE
+                m[t].assets = m[t].cash + m[t].totalOpAssets + m[t].ppe; 
+                m[t].liabEq = m[t].debt + m[t].totalOpLiabs + m[t].equity + m[t].re;
+
+                // VALUATION CFs
+                m[t].nopat = m[t].ebit * (1 - tax); 
+                m[t].ufcf = t===0 ? 0 : m[t].nopat + m[t].depr - m[t].capex - m[t].chgNwc;
+                m[t].fcfe = t===0 ? 0 : m[t].ni + m[t].depr - m[t].capex - m[t].chgNwc + m[t].netBorrowing;
             }
 
-            window.masterMatrix = m; window.masterTotalPeriods = totalPeriods;
+            masterMatrix = m; masterTotalPeriods = totalPeriods;
 
-            let sumPv = 0; for(let i=1; i<=totalPeriods; i++) sumPv += m[i].pvUfcf;
+            // DCF MATH
+            const valMethod = document.getElementById('valMethod').value;
+            const discRate = valMethod === 'fcfe' ? ke : wacc;
+            
+            let sumPv = 0; 
+            for(let i=1; i<=totalPeriods; i++) {
+                let cf = valMethod === 'fcfe' ? m[i].fcfe : m[i].ufcf;
+                m[i].pvCf = cf / Math.pow(1 + discRate, i);
+                sumPv += m[i].pvCf;
+            }
+
             let tv = 0; let pvTv = 0; let tvError = false;
 
-            if (wacc > tgr) {
-                tv = (m[totalPeriods].ufcf * (1 + tgr)) / (wacc - tgr);
-                pvTv = tv / Math.pow(1 + wacc, totalPeriods);
+            if (discRate > tgr) {
+                let terminalCf = valMethod === 'fcfe' ? m[totalPeriods].fcfe : m[totalPeriods].ufcf;
+                tv = (terminalCf * (1 + tgr)) / (discRate - tgr);
+                pvTv = tv / Math.pow(1 + discRate, totalPeriods);
             } else { tvError = true; }
 
-            let ev = tvError ? sumPv : sumPv + pvTv;
+            let coreVal = tvError ? sumPv : sumPv + pvTv;
+            
+            let ev = 0, eqv = 0;
+            if (valMethod === 'fcff') {
+                ev = coreVal;
+                eqv = ev + m[0].cash - m[0].debt; 
+            } else {
+                eqv = coreVal;
+                ev = eqv - m[0].cash + m[0].debt; 
+            }
 
             let yrSelect = document.getElementById('dashYearSelect');
             let wfSelect = document.getElementById('dashBridgeYearSelect');
@@ -1302,19 +1399,39 @@
                 const curWf = wfSelect.value; wfSelect.innerHTML = optionsHTML; if (curWf && curWf <= totalPeriods) wfSelect.value = curWf;
             }
 
-            document.getElementById('dashEV').innerHTML = tvError ? `<span class="val-negative" style="font-size:12px;">WACC Error</span>` : cF(ev);
-            document.getElementById('outPvUfcf').innerHTML = cF(sumPv);
-            document.getElementById('outTv').innerHTML = tvError ? `<span class="val-negative" style="font-size:12px;">WACC must be > TGR</span>` : cF(tv);
-            document.getElementById('outPvTv').innerHTML = tvError ? `<span class="val-negative" style="font-size:12px;">WACC must be > TGR</span>` : cF(pvTv);
-            document.getElementById('outEvFinal').innerHTML = tvError ? `<span class="val-negative" style="font-size:14px;">Review Assumptions</span>` : cF(ev);
+            document.getElementById('dashEqEVLabel').innerText = valMethod === 'fcff' ? 'Enterprise Value' : 'Equity Value';
+            document.getElementById('dashEV').innerHTML = tvError ? `<span class="val-negative" style="font-size:12px;">Rate Error</span>` : cF(valMethod === 'fcff' ? ev : eqv);
+            
+            document.getElementById('valMethodDesc').innerHTML = valMethod === 'fcff' ? 
+                '<strong>Unlevered Method:</strong> Calculates Unlevered Free Cash Flow (UFCF) and discounts by WACC to arrive at Enterprise Value.' : 
+                '<strong>Levered Method:</strong> Calculates Free Cash Flow to Equity (FCFE) and discounts by Cost of Equity (Ke) to arrive at Equity Value.';
 
-            const th = `<tr><th>Line Item (${window.currSym}M)</th><th>Yr 0<br><span class="stage-label" style="background:#64748b;">Base</span></th>` + 
+            document.getElementById('outPvUfcf').innerHTML = cF(sumPv);
+            document.getElementById('outTv').innerHTML = tvError ? `<span class="val-negative" style="font-size:12px;">Rate must be > TGR</span>` : cF(tv);
+            document.getElementById('outPvTv').innerHTML = tvError ? `<span class="val-negative" style="font-size:12px;">Rate must be > TGR</span>` : cF(pvTv);
+            document.getElementById('coreValLabel').innerText = valMethod === 'fcff' ? 'Implied Enterprise Value:' : 'Implied Equity Value:';
+            document.getElementById('outEvFinal').innerHTML = tvError ? `<span class="val-negative" style="font-size:14px;">Review Assumptions</span>` : cF(coreVal);
+
+            document.getElementById('bridgeCore').innerHTML = cF(coreVal);
+            document.getElementById('bridgeCash').innerHTML = cF(m[0].cash);
+            document.getElementById('bridgeDebt').innerHTML = cF(m[0].debt);
+            document.getElementById('bridgeFinalLabel').innerText = valMethod === 'fcff' ? 'Implied Equity Value:' : 'Implied Enterprise Value:';
+            document.getElementById('bridgeFinal').innerHTML = cF(valMethod === 'fcff' ? eqv : ev);
+
+            const th = `<tr><th>Line Item (${currSym}M)</th><th>Yr 0<br><span class="stage-label" style="background:#64748b;">Base</span></th>` + 
                 m.slice(1).map((_, idx) => { let t = idx + 1; return `<th>Yr ${t}<br><span class="stage-label">Stage ${yearMap[t].stageNum} (${(yearMap[t].growth*100).toFixed(0)}%)</span></th>`; }).join('') + `</tr>`;
             
             let revRows = revenues.map((r, i) => `<tr><td style="padding-left:20px;">(+) ${r.name}</td>` + m.map(yr => `<td>${f(yr.revLines[i].val)}</td>`).join('') + `</tr>`).join('');
             let expRows = expenses.map((e, i) => `<tr><td style="padding-left:20px;">(-) ${e.name}</td>` + m.map(yr => `<td>${f(yr.expLines[i].val)}</td>`).join('') + `</tr>`).join('');
-            let assetRows = opAssets.map((a, i) => `<tr><td style="padding-left:20px;">${a.name}</td>` + m.map(yr => `<td>${f(yr.assetLines[i].val)}</td>`).join('') + `</tr>`).join('');
-            let liabRows = opLiabs.map((l, i) => `<tr><td style="padding-left:20px;">${l.name}</td>` + m.map(yr => `<td>${f(yr.liabLines[i].val)}</td>`).join('') + `</tr>`).join('');
+            
+            let assetRows = '', liabRows = '';
+            if (nwcType === 'dynamic') {
+                assetRows = opAssets.map((a, i) => `<tr><td style="padding-left:20px;">${a.name}</td>` + m.map(yr => `<td>${f(yr.assetLines[i].val)}</td>`).join('') + `</tr>`).join('');
+                liabRows = opLiabs.map((l, i) => `<tr><td style="padding-left:20px;">${l.name}</td>` + m.map(yr => `<td>${f(yr.liabLines[i].val)}</td>`).join('') + `</tr>`).join('');
+            } else {
+                assetRows = `<tr><td style="padding-left:20px;">Aggregated Op. Assets</td>` + m.map(yr => `<td>${f(yr.totalOpAssets)}</td>`).join('') + `</tr>`;
+                liabRows = `<tr><td style="padding-left:20px;">Aggregated Op. Liabs</td>` + m.map(yr => `<td>${f(yr.totalOpLiabs)}</td>`).join('') + `</tr>`;
+            }
 
             document.getElementById('sub-pl').innerHTML = `
                 <table class="statement-table">${th}${revRows}<tr class="row-total"><td>Total Revenue</td>${m.map(yr=>`<td>${f(yr.totalRev)}</td>`).join('')}</tr>
@@ -1333,49 +1450,57 @@
                 <table class="statement-table">${th}<tr><td>Net Income</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.ni)}</td>`).join('')}</tr><tr><td>(+) D&A</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.depr)}</td>`).join('')}</tr>
                 <tr><td>(-) Change in Op Assets</td>${m.map((yr,t)=>`<td>${t===0?'-':f(-yr.chgOpAssets)}</td>`).join('')}</tr><tr><td>(+) Change in Op Liab</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgOpLiabs)}</td>`).join('')}</tr>
                 <tr class="row-total"><td>Cash from Ops (CFO)</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.cfo)}</td>`).join('')}</tr><tr><td>Cash from Inv (CFI)</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.cfi)}</td>`).join('')}</tr>
+                <tr><td>(+) Net Borrowing (CFF)</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.netBorrowing)}</td>`).join('')}</tr>
                 <tr class="row-total"><td>Net Change in Cash</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.netCf)}</td>`).join('')}</tr></table>`;
 
-            document.getElementById('dcfContainer').innerHTML = `
-                <table class="statement-table">${th}<tr><td>EBIT*(1-t) [NOPAT]</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.nopat)}</td>`).join('')}</tr>
-                <tr><td>(+) D&A</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.depr)}</td>`).join('')}</tr><tr><td>(-) CapEx</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.capex)}</td>`).join('')}</tr>
-                <tr><td>(-) Change in Op Assets</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgOpAssets)}</td>`).join('')}</tr><tr><td>(+) Change in Op Liabs</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgOpLiabs)}</td>`).join('')}</tr>
-                <tr class="row-total"><td>Unlevered FCF</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.ufcf)}</td>`).join('')}</tr><tr class="row-total" style="background: rgba(37, 99, 235, 0.05) !important; color:var(--accent);"><td>PV of UFCF</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.pvUfcf)}</td>`).join('')}</tr></table>`;
+            let dcfRows = '';
+            if (valMethod === 'fcff') {
+                dcfRows = `
+                    <tr><td>EBIT*(1-t) [NOPAT]</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.nopat)}</td>`).join('')}</tr>
+                    <tr><td>(+) D&A</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.depr)}</td>`).join('')}</tr>
+                    <tr><td>(-) CapEx</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.capex)}</td>`).join('')}</tr>
+                    <tr><td>(-) Change in Net Working Capital</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgNwc)}</td>`).join('')}</tr>
+                    <tr class="row-total"><td>Unlevered FCF</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.ufcf)}</td>`).join('')}</tr>
+                    <tr class="row-total" style="background: rgba(37, 99, 235, 0.05) !important; color:var(--accent);"><td>PV of UFCF</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.pvCf)}</td>`).join('')}</tr>
+                `;
+            } else {
+                dcfRows = `
+                    <tr><td>Net Income</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.ni)}</td>`).join('')}</tr>
+                    <tr><td>(+) D&A</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.depr)}</td>`).join('')}</tr>
+                    <tr><td>(-) CapEx</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.capex)}</td>`).join('')}</tr>
+                    <tr><td>(-) Change in Net Working Capital</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.chgNwc)}</td>`).join('')}</tr>
+                    <tr><td>(+) Net Borrowing</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.netBorrowing)}</td>`).join('')}</tr>
+                    <tr class="row-total"><td>Free Cash Flow to Equity (FCFE)</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.fcfe)}</td>`).join('')}</tr>
+                    <tr class="row-total" style="background: rgba(37, 99, 235, 0.05) !important; color:var(--accent);"><td>PV of FCFE</td>${m.map((yr,t)=>`<td>${t===0?'-':f(yr.pvCf)}</td>`).join('')}</tr>
+                `;
+            }
 
-            renderItemChart(); renderYearChart(); renderMarginChart(); renderWaterfallChart(); renderInsights(ev);
+            document.getElementById('dcfContainer').innerHTML = `<table class="statement-table">${th}${dcfRows}</table>`;
+
+            renderItemChart(); renderYearChart(); renderMarginChart(); renderWaterfallChart(); renderInsights(coreVal, valMethod);
         }
 
         // ==========================================
         // AI COPILOT LOGIC
         // ==========================================
-        const apiSecretKey = ""; // Exec environment provides this
-
+        
         async function fetchGeminiWithBackoff(payload, maxRetries = 5) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiSecretKey}`;
+            const apiKey = "AIzaSyChnt6TC8A9ogNq_KcamFg46owdzIzLa0w"; 
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
             let retries = 0;
             const delays = [1000, 2000, 4000, 8000, 16000];
 
             while (retries <= maxRetries) {
                 try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
+                    const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                     if (!response.ok) {
-                        if (response.status === 429 || response.status >= 500) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        } else {
-                            const errorText = await response.text();
-                            throw new Error(`Non-retriable API error: ${response.status} - ${errorText}`);
-                        }
+                        if (response.status === 429 || response.status >= 500) throw new Error(`HTTP error! status: ${response.status}`);
+                        else throw new Error(`Non-retriable API error: ${response.status} - ${await response.text()}`);
                     }
                     return await response.json();
                 } catch (error) {
-                    if (retries === maxRetries || error.message.includes('Non-retriable')) {
-                        throw error;
-                    }
-                    await new Promise(resolve => setTimeout(resolve, delays[retries]));
-                    retries++;
+                    if (retries === maxRetries || error.message.includes('Non-retriable')) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delays[retries])); retries++;
                 }
             }
         }
@@ -1388,17 +1513,17 @@
         }
 
         function buildModelContextString() {
-            if(!window.masterMatrix || window.masterMatrix.length === 0) return "Model is empty.";
-            
-            const ev = document.getElementById('dashEV').innerText;
+            if(!masterMatrix || masterMatrix.length === 0) return "Model is empty.";
+            const ev = document.getElementById('outEvFinal').innerText;
+            const valMethod = document.getElementById('valMethod').value;
             const wacc = document.getElementById('dashWacc').innerText;
+            const ke = document.getElementById('outKe').innerText;
             const tv = document.getElementById('outTv').innerText;
-            const tgr = document.getElementById('tgr').value + '%';
             
-            let summary = `Current Model Financial Data:\n- Reporting Currency: ${window.currSym}\n- Implied Enterprise Value: ${ev}\n- Discount Rate (WACC): ${wacc}\n- Terminal Value: ${tv}\n- Terminal Growth Rate: ${tgr}\n\nYear-by-Year Snapshot (in Millions):\n`;
+            let summary = `Current Model Financial Data:\n- Valuation Method: ${valMethod === 'fcff' ? 'Enterprise Value (FCFF)' : 'Equity Value (FCFE)'}\n- Core Valuation Output: ${ev}\n- WACC: ${wacc} | Ke: ${ke}\n- Terminal Value: ${tv}\n\nYear-by-Year Snapshot:\n`;
             
-            window.masterMatrix.forEach((yr, idx) => {
-                summary += `[Year ${idx}]: Total Revenue=${yr.totalRev.toFixed(2)}, Gross Profit=${yr.gp.toFixed(2)}, EBITDA=${yr.ebitda.toFixed(2)}, Net Income=${yr.ni.toFixed(2)}, Unlevered Free Cash Flow (UFCF)=${yr.ufcf.toFixed(2)}, Cash Balance=${yr.cash.toFixed(2)}\n`;
+            masterMatrix.forEach((yr, idx) => {
+                summary += `[Year ${idx}]: Rev=${yr.totalRev.toFixed(1)}, GP=${yr.gp.toFixed(1)}, EBITDA=${yr.ebitda.toFixed(1)}, NI=${yr.ni.toFixed(1)}, UFCF=${yr.ufcf.toFixed(1)}, FCFE=${yr.fcfe.toFixed(1)}, Cash=${yr.cash.toFixed(1)}\n`;
             });
             return summary;
         }
@@ -1408,46 +1533,29 @@
             const msg = inputEl.value.trim();
             if(!msg) return;
 
-            // Update UI with User Message
             const historyEl = document.getElementById('chatHistory');
             historyEl.innerHTML += `<div class="chat-bubble chat-user">${msg}</div>`;
-            inputEl.value = '';
-            document.getElementById('aiSendBtn').disabled = true;
+            inputEl.value = ''; document.getElementById('aiSendBtn').disabled = true;
             
-            // Add Loading Indicator
             const loaderId = 'loader-' + Date.now();
-            historyEl.innerHTML += `
-                <div class="typing-indicator" id="${loaderId}">
-                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                </div>
-            `;
+            historyEl.innerHTML += `<div class="typing-indicator" id="${loaderId}"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
             historyEl.scrollTop = historyEl.scrollHeight;
 
-            // Generate System Context
-            const systemContext = `You are an expert Investment Banking AI Analyst integrated directly into the 'DealCraft' financial modeling software. 
-Your job is to answer the user's questions about their current financial model. Be highly analytical, precise, and professional. 
-Format your responses clearly using markdown bolding where appropriate. Keep answers concise unless asked for a detailed breakdown.
-Here is the exact live data from the user's financial model:\n\n${buildModelContextString()}`;
+            const systemContext = `You are an expert Investment Banking AI Analyst integrated directly into the 'DealCraft' financial modeling software. Answer the user's questions about their current financial model. Be analytical and professional. Here is the live data from the user's financial model:\n\n${buildModelContextString()}`;
 
-            const payload = {
-                contents: [{ parts: [{ text: msg }] }],
-                systemInstruction: { parts: [{ text: systemContext }] }
-            };
+            const payload = { contents: [{ parts: [{ text: msg }] }], systemInstruction: { parts: [{ text: systemContext }] } };
 
             try {
                 const result = await fetchGeminiWithBackoff(payload);
                 const reply = result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't generate a response based on the model data.";
-                
                 document.getElementById(loaderId).remove();
                 historyEl.innerHTML += `<div class="chat-bubble chat-ai">${formatMarkdown(reply)}</div>`;
             } catch (error) {
                 document.getElementById(loaderId).remove();
                 historyEl.innerHTML += `<div class="chat-bubble chat-ai" style="color: var(--danger);">Error: Could not connect to the AI engine. Please try again.</div>`;
-                console.error("AI Fetch Error:", error);
             } finally {
                 document.getElementById('aiSendBtn').disabled = false;
-                historyEl.scrollTop = historyEl.scrollHeight;
-                inputEl.focus();
+                historyEl.scrollTop = historyEl.scrollHeight; inputEl.focus();
             }
         }
 
